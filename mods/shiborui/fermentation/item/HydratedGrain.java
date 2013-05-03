@@ -1,4 +1,4 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.item;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -8,25 +8,24 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
-public class Grain extends ItemSeeds implements IPlantable {
+public class HydratedGrain extends ItemSeeds implements IPlantable {
 	
 	private int blockType;
 	
-	public Grain(int id, int blockType, int soilBlockID) {
+	public HydratedGrain(int id, int blockType, int soilBlockID) {
 		super(id, blockType, soilBlockID);
 		this.blockType = blockType;
 		setMaxStackSize(64);
         setCreativeTab(CreativeTabs.tabMisc);
-        setUnlocalizedName("fermentationGrain");
+        setUnlocalizedName("fermentationHydratedGrain");
 	}
 	
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:Grain");
+             this.itemIcon = iconRegister.registerIcon("Fermentation:HydratedGrain");
     }
 	
 	@Override
@@ -56,5 +55,4 @@ public class Grain extends ItemSeeds implements IPlantable {
             return false;
         }
 	}
-
 }

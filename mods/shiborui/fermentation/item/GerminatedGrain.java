@@ -1,20 +1,23 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.item;
 
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
-public class DriedGrain extends Item {
-	public DriedGrain(int id) {
+public class GerminatedGrain extends Item {
+	
+	private int blockType;
+	
+	public GerminatedGrain(int id) {
 		super(id);
 		setMaxStackSize(64);
         setCreativeTab(CreativeTabs.tabMisc);
-        setUnlocalizedName("fermentationDriedGrain");
+        setUnlocalizedName("fermentationGerminatedGrain");
 	}
 	
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:DriedGrain");
+             this.itemIcon = iconRegister.registerIcon("Fermentation:GerminatedGrain");
     }
 }

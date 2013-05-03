@@ -1,4 +1,4 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.item;
 
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;

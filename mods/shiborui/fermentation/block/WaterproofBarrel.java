@@ -1,4 +1,4 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

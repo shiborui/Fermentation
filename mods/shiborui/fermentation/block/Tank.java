@@ -1,4 +1,4 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.block;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -9,6 +9,8 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 
+import mods.shiborui.fermentation.Fermentation;
+import mods.shiborui.fermentation.TileEntityTank;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;

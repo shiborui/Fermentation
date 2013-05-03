@@ -1,5 +1,20 @@
 package mods.shiborui.fermentation;
 
+import mods.shiborui.fermentation.block.DryingGrainCrop;
+import mods.shiborui.fermentation.block.GerminatingGrainCrop;
+import mods.shiborui.fermentation.block.Tank;
+import mods.shiborui.fermentation.block.WaterproofBarrel;
+import mods.shiborui.fermentation.item.BucketBeer;
+import mods.shiborui.fermentation.item.BucketHoppedWort;
+import mods.shiborui.fermentation.item.BucketSweetWort;
+import mods.shiborui.fermentation.item.DriedGrain;
+import mods.shiborui.fermentation.item.GerminatedGrain;
+import mods.shiborui.fermentation.item.Grain;
+import mods.shiborui.fermentation.item.HydratedGrain;
+import mods.shiborui.fermentation.item.MaltedGrain;
+import mods.shiborui.fermentation.item.MilledGrain;
+import mods.shiborui.fermentation.item.Mug;
+import mods.shiborui.fermentation.item.QuernStone;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
@@ -25,31 +40,37 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 @NetworkMod(clientSideRequired=true, serverSideRequired=false, channels={"FermentationTank"}, packetHandler = PacketHandler.class)
 public class Fermentation {
 
-	protected static Item mug;
-	protected static ItemSeeds grain;
-	protected static Item driedGrain;
-	protected static ItemSeeds hydratedGrain;
-	protected static Item germinatedGrain;
-	protected static Item maltedGrain;
-	protected static Item milledGrain;
-	protected static Item quernStone;
-	protected static Block waterproofBarrel;
-	protected static Block tank;
-	protected static Block dryingGrainCrop;
-	protected static Block germinatingGrainCrop;
+	public static Item mug;
+	public static ItemSeeds grain;
+	public static Item driedGrain;
+	public static ItemSeeds hydratedGrain;
+	public static Item germinatedGrain;
+	public static Item maltedGrain;
+	public static Item milledGrain;
+	public static Item quernStone;
+	public static Item bucketSweetWort;
+	public static Item bucketHoppedWort;
+	public static Item bucketBeer;
+	public static Block waterproofBarrel;
+	public static Block tank;
+	public static Block dryingGrainCrop;
+	public static Block germinatingGrainCrop;
 	
-	private static int mugID = 5000;
-	private static int grainID = 5001;
-	private static int driedGrainID = 5002;
-	private static int hydratedGrainID = 5003;
-	private static int germinatedGrainID = 5004;
-	private static int maltedGrainID = 5005;
-	private static int milledGrainID = 5006;
-	private static int quernStoneID = 5007;
-	private static int waterproofBarrelID = 500;
-	private static int tankID = 501;
-	private static int dryingGrainCropID = 502;
-	private static int germinatingGrainCropID = 503;
+	public static int mugID = 5000;
+	public static int grainID = 5001;
+	public static int driedGrainID = 5002;
+	public static int hydratedGrainID = 5003;
+	public static int germinatedGrainID = 5004;
+	public static int maltedGrainID = 5005;
+	public static int milledGrainID = 5006;
+	public static int quernStoneID = 5007;
+	public static int bucketSweetWortID = 5008;
+	public static int bucketHoppedWortID = 5009;
+	public static int bucketBeerID = 5010;
+	public static int waterproofBarrelID = 500;
+	public static int tankID = 501;
+	public static int dryingGrainCropID = 502;
+	public static int germinatingGrainCropID = 503;
 	
 	
         // The instance of your mod that Forge uses.
@@ -111,6 +132,21 @@ public class Fermentation {
             quernStone = new QuernStone(quernStoneID);
             quernStone.setContainerItem(quernStone);
             LanguageRegistry.addName(quernStone, "Quern Stone");
+            
+            bucketSweetWort = new BucketSweetWort(bucketSweetWortID);
+            bucketSweetWort.setContainerItem(Item.bucketEmpty);
+            LanguageRegistry.addName(bucketSweetWort, "Sweet Wort");
+            
+            bucketHoppedWort = new BucketHoppedWort(bucketHoppedWortID);
+            bucketHoppedWort.setContainerItem(Item.bucketEmpty);
+            LanguageRegistry.addName(bucketHoppedWort, "Hopped Wort");
+            
+            bucketBeer = new BucketBeer(bucketBeerID);
+            bucketBeer.setContainerItem(Item.bucketEmpty);
+            for(int subItem = 0; subItem < 4; subItem++) {
+            	LanguageRegistry.addName(new ItemStack(bucketBeer, 1, subItem), BucketBeer.subItemNames[subItem]);
+            }
+            
             
             waterproofBarrel = new WaterproofBarrel(waterproofBarrelID, Material.wood);
             GameRegistry.registerBlock(waterproofBarrel, "fermentationWaterproofBarrel");

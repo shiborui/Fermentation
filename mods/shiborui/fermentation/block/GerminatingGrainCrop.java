@@ -1,23 +1,22 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.block;
 
 import java.util.Random;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mods.shiborui.fermentation.Fermentation;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.item.Item;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 
-public class DryingGrainCrop extends Block {
-	
+public class GerminatingGrainCrop extends Block {
 	@SideOnly(Side.CLIENT)
     private Icon[] iconArray;
 	
-		public DryingGrainCrop(int id) {
+		public GerminatingGrainCrop(int id) {
 			super(id, Material.plants);
 			this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F , 0.2F, 1.0F);
 			this.setTickRandomly(true);
@@ -40,7 +39,7 @@ public class DryingGrainCrop extends Block {
 	     */
 	    public int idDropped(int growthStage, Random par2Random, int par3)
 	    {
-	        return growthStage == 1 ? Fermentation.driedGrain.itemID : Fermentation.grain.itemID;
+	        return growthStage == 1 ? Fermentation.germinatedGrain.itemID : Fermentation.hydratedGrain.itemID;
 	    }
 
 	    /**
@@ -77,8 +76,8 @@ public class DryingGrainCrop extends Block {
 	    public void registerIcons(IconRegister iconRegister)
 	    {
 	    	this.iconArray = new Icon[2];
-	        this.iconArray[0] = iconRegister.registerIcon("Fermentation:DryingGrainCrop");
-	        this.iconArray[1] = iconRegister.registerIcon("Fermentation:DryGrainCrop");
+	        this.iconArray[0] = iconRegister.registerIcon("Fermentation:GerminatingGrainCrop");
+	        this.iconArray[1] = iconRegister.registerIcon("Fermentation:GerminatedGrainCrop");
 	    }
 	    
 	    @SideOnly(Side.CLIENT)
