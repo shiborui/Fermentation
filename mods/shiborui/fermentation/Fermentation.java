@@ -6,6 +6,7 @@ import mods.shiborui.fermentation.block.Tank;
 import mods.shiborui.fermentation.block.WaterproofBarrel;
 import mods.shiborui.fermentation.item.BucketBeer;
 import mods.shiborui.fermentation.item.BucketHoppedWort;
+import mods.shiborui.fermentation.item.BucketRuinedBrew;
 import mods.shiborui.fermentation.item.BucketSweetWort;
 import mods.shiborui.fermentation.item.DriedGrain;
 import mods.shiborui.fermentation.item.GerminatedGrain;
@@ -52,6 +53,7 @@ public class Fermentation {
 	public static Item bucketSweetWort;
 	public static Item bucketHoppedWort;
 	public static Item bucketBeer;
+	public static Item bucketRuinedBrew;
 	public static Item yeast;
 	public static Block waterproofBarrel;
 	public static Block tank;
@@ -69,7 +71,8 @@ public class Fermentation {
 	public static int bucketSweetWortID = 5008;
 	public static int bucketHoppedWortID = 5009;
 	public static int bucketBeerID = 5010;
-	public static int yeastID = 5011;
+	public static int bucketRuinedBrewID = 5011;
+	public static int yeastID = 5012;
 	public static int waterproofBarrelID = 500;
 	public static int tankID = 501;
 	public static int dryingGrainCropID = 502;
@@ -149,6 +152,10 @@ public class Fermentation {
             for(int subItem = 0; subItem < 4; subItem++) {
             	LanguageRegistry.addName(new ItemStack(bucketBeer, 1, subItem), BucketBeer.subItemNames[subItem]);
             }
+            
+            bucketRuinedBrew = new BucketRuinedBrew(bucketRuinedBrewID);
+            bucketRuinedBrew.setContainerItem(Item.bucketEmpty);
+            LanguageRegistry.addName(bucketRuinedBrew, "Ruined Brew");
             
             yeast = new Yeast(yeastID);
             LanguageRegistry.addName(yeast, "Yeast");

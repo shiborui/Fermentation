@@ -32,6 +32,7 @@ public class ContainerTank extends Container {
             
             HashSet allowedInput = new HashSet();
             allowedInput.add(Item.bucketWater);
+            allowedInput.add(Fermentation.bucketSweetWort);
             allowedInput.add(Item.bucketEmpty);
             allowedInput.add(Fermentation.milledGrain);
             allowedInput.add(Fermentation.yeast);

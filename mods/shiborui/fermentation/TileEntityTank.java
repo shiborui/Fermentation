@@ -1,5 +1,8 @@
 package mods.shiborui.fermentation;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,6 +24,8 @@ public class TileEntityTank extends TileEntity implements IInventory{
 	 private boolean active = true;
 	 
 	 private RestrictedSlot[] inventorySlots = new RestrictedSlot[3];
+	 
+	 private Item[] validLiquids = {Item.bucketWater, Fermentation.bucketSweetWort, Fermentation.bucketHoppedWort, Fermentation.bucketBeer};
 	 
 	 private static final int INPUT = 0;
 	 private static final int OUTPUT = 1;
@@ -186,7 +191,7 @@ public class TileEntityTank extends TileEntity implements IInventory{
 	public void updateEntity() {
 		if(active) {
 			//if(++tickCount == 240) {
-			if(++tickCount == 24) {
+			if(++tickCount == 24) { //10x speed for development
 				incrementProgress();
 			}
 		}
@@ -251,8 +256,6 @@ public class TileEntityTank extends TileEntity implements IInventory{
 	
 	public boolean setProgress(int progress) {
 		this.progress = progress;
-		updateSlotConfiguration();
-		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		tickCount = 0;
 		
 		if(progress == 100 && inventory[SOLID] != null) {
@@ -260,13 +263,16 @@ public class TileEntityTank extends TileEntity implements IInventory{
 				setInventorySlotContents(SOLID, new ItemStack(Fermentation.hydratedGrain, inventory[SOLID].stackSize));
 			} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && liquidType == WATER) {
 				setInventorySlotContents(SOLID, null);
+				setSolidCount(0);
 				setLiquidType(SWEETWORT);
 			} else {
 				setInventorySlotContents(SOLID, null);
+				setSolidCount(0);
 				setLiquidType(RUINEDBREW);
 			}
 		}
 		
+		updateSlotConfiguration();
 		this.worldObj.updateTileEntityChunkAndDoNothing(this.xCoord, this.yCoord, this.zCoord, this);
 		return true;
 	}
@@ -308,16 +314,28 @@ public class TileEntityTank extends TileEntity implements IInventory{
 			if(inventory[OUTPUT] != null) {
 				outputItem = inventory[OUTPUT].getItem();
 			}
-			if(inputItem.equals(Item.bucketWater) && liquidVolume < 64 &&(getLiquidType() == WATER || getLiquidType() == EMPTY)) {
-				setLiquidType(WATER);
-				if(inventory[OUTPUT] == null) {
-					setInventorySlotContents(OUTPUT, new ItemStack(Item.bucketEmpty));
-					setInventorySlotContents(INPUT, null);
-					setLiquidVolume(getLiquidVolume() + 1);
-				} else if (outputItem.equals(Item.bucketEmpty) && inventory[OUTPUT].stackSize < 16){
-					inventory[OUTPUT].stackSize++;
-					setInventorySlotContents(INPUT, null);
-					setLiquidVolume(getLiquidVolume() + 1);
+			if (liquidVolume < 64 && Arrays.asList(validLiquids).contains(inputItem)) {
+				boolean willTakeLiquid = false;
+				if (inputItem.equals(Item.bucketWater) && (getLiquidType() == WATER || getLiquidType() == EMPTY)) {
+					setLiquidType(WATER);
+					willTakeLiquid = true;
+				} else if (inputItem.equals(Fermentation.bucketSweetWort) && (getLiquidType() == SWEETWORT || getLiquidType() == EMPTY)) {
+					setLiquidType(SWEETWORT);
+					willTakeLiquid = true;
+				} else if (inputItem.equals(Fermentation.bucketHoppedWort) && (getLiquidType() == HOPPEDWORT || getLiquidType() == EMPTY)) {
+					setLiquidType(HOPPEDWORT);
+					willTakeLiquid = true;
+				}
+				if(willTakeLiquid) {
+					if(inventory[OUTPUT] == null) {
+						setInventorySlotContents(OUTPUT, new ItemStack(Item.bucketEmpty));
+						setInventorySlotContents(INPUT, null);
+						setLiquidVolume(getLiquidVolume() + 1);
+					} else if (outputItem.equals(Item.bucketEmpty) && inventory[OUTPUT].stackSize < 16){
+						inventory[OUTPUT].stackSize++;
+						setInventorySlotContents(INPUT, null);
+						setLiquidVolume(getLiquidVolume() + 1);
+					}
 				}
 			} else if (inputItem.equals(Item.bucketEmpty) && getLiquidVolume() > 0 && inventory[OUTPUT] == null) {
 				switch(liquidType) {
@@ -357,7 +375,6 @@ public class TileEntityTank extends TileEntity implements IInventory{
 					}
 				}
 			}
-			System.out.println(inventorySlots[SOLID].getAllowedItems());
 			
 		}
 		
