@@ -2,7 +2,9 @@ package mods.shiborui.fermentation;
 
 import mods.shiborui.fermentation.block.DryingGrainCrop;
 import mods.shiborui.fermentation.block.GerminatingGrainCrop;
+import mods.shiborui.fermentation.block.HopsVine;
 import mods.shiborui.fermentation.block.Tank;
+import mods.shiborui.fermentation.block.VineScaffold;
 import mods.shiborui.fermentation.block.WaterproofBarrel;
 import mods.shiborui.fermentation.block.YeastBin;
 import mods.shiborui.fermentation.item.BucketBeer;
@@ -12,11 +14,14 @@ import mods.shiborui.fermentation.item.BucketSweetWort;
 import mods.shiborui.fermentation.item.DriedGrain;
 import mods.shiborui.fermentation.item.GerminatedGrain;
 import mods.shiborui.fermentation.item.Grain;
+import mods.shiborui.fermentation.item.Hops;
+import mods.shiborui.fermentation.item.HopsSeeds;
 import mods.shiborui.fermentation.item.HydratedGrain;
 import mods.shiborui.fermentation.item.MaltedGrain;
 import mods.shiborui.fermentation.item.MilledGrain;
 import mods.shiborui.fermentation.item.Mug;
 import mods.shiborui.fermentation.item.QuernStone;
+import mods.shiborui.fermentation.item.VineAssembly;
 import mods.shiborui.fermentation.item.Yeast;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
@@ -24,6 +29,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -56,12 +62,17 @@ public class Fermentation {
 	public static Item bucketBeer;
 	public static Item bucketRuinedBrew;
 	public static Item yeast;
+	public static Item hops;
+	public static Item vineAssembly;
+	public static Item hopsSeeds;
 	public static Block waterproofBarrel;
 	public static Block tank;
 	public static Block kettle;
 	public static Block yeastBin;
 	public static Block dryingGrainCrop;
 	public static Block germinatingGrainCrop;
+	public static Block vineScaffold;
+	public static Block hopsVine;
 	
 	public static int mugID = 5000;
 	public static int grainID = 5001;
@@ -76,12 +87,17 @@ public class Fermentation {
 	public static int bucketBeerID = 5010;
 	public static int bucketRuinedBrewID = 5011;
 	public static int yeastID = 5012;
+	public static int hopsID = 5013;
+	public static int vineAssemblyID = 5014;
+	public static int hopsSeedsID = 5015;
 	public static int waterproofBarrelID = 500;
 	public static int tankID = 501;
 	public static int kettleID = 502;
 	public static int yeastBinID = 503;
 	public static int dryingGrainCropID = 504;
 	public static int germinatingGrainCropID = 505;
+	public static int vineScaffoldID = 506;
+	public static int hopsVineID = 507;
 	
 	
         // The instance of your mod that Forge uses.
@@ -121,6 +137,14 @@ public class Fermentation {
             
             germinatingGrainCrop = new GerminatingGrainCrop(germinatingGrainCropID);
             GameRegistry.registerBlock(germinatingGrainCrop, "fermentationGerminatingGrainCrop");
+            
+            vineScaffold = new VineScaffold(vineScaffoldID);
+            GameRegistry.registerBlock(vineScaffold, "fermentationVineScaffold");
+            LanguageRegistry.addName(vineScaffold, "Vine Scaffold");
+            
+            hopsVine = new HopsVine(hopsVineID);
+            GameRegistry.registerBlock(hopsVine, "fermentationHopsVine");
+            LanguageRegistry.addName(hopsVine, "Hops Vine");
             
             grain = new Grain(grainID, dryingGrainCropID, 1);
             LanguageRegistry.addName(grain, "Grain");
@@ -163,7 +187,19 @@ public class Fermentation {
             LanguageRegistry.addName(bucketRuinedBrew, "Ruined Brew");
             
             yeast = new Yeast(yeastID);
+            MinecraftForge.addGrassSeed(new ItemStack(yeast), 1);
             LanguageRegistry.addName(yeast, "Yeast");
+            
+            hops = new Hops(hopsID);
+            LanguageRegistry.addName(hops, "Hops");
+            
+            vineAssembly = new VineAssembly(vineAssemblyID, hopsVineID, 2);
+            LanguageRegistry.addName(new ItemStack(vineAssembly, 1, 0), "Vine Assembly");
+            LanguageRegistry.addName(new ItemStack(vineAssembly, 1, 1), "Hops Vine Assembly");
+            
+            hopsSeeds = new HopsSeeds(hopsSeedsID);
+            MinecraftForge.addGrassSeed(new ItemStack(hopsSeeds), 1);
+            LanguageRegistry.addName(hopsSeeds, "Hops Seeds");
             
             waterproofBarrel = new WaterproofBarrel(waterproofBarrelID, Material.wood);
             GameRegistry.registerBlock(waterproofBarrel, "fermentationWaterproofBarrel");
@@ -192,9 +228,12 @@ public class Fermentation {
         	ItemStack cauldronStack = new ItemStack(Block.cauldron);
         	ItemStack blockIronStack = new ItemStack(Block.blockIron);
         	ItemStack ingotIronStack = new ItemStack(Item.ingotIron);
+        	ItemStack ladderStack = new ItemStack(Block.ladder);
         	
         	ItemStack maltedGrainStack = new ItemStack(maltedGrain);
         	ItemStack quernStoneStack = new ItemStack(quernStone);
+        	ItemStack hopsStack = new ItemStack(hops);
+        	ItemStack hopsSeedsStack = new ItemStack(hopsSeeds);
         	
         	GameRegistry.addRecipe(new ItemStack(mug, 16), 
         			"xx ", "xxx", "xx ", 
@@ -225,6 +264,12 @@ public class Fermentation {
         	
         	GameRegistry.addShapelessRecipe(new ItemStack(milledGrain), 
         			quernStoneStack, maltedGrainStack);
+        	
+        	GameRegistry.addShapelessRecipe(new ItemStack(hopsSeeds), 
+        			hopsStack);
+        	
+        	GameRegistry.addShapelessRecipe(new ItemStack(vineAssembly, 1, 1), 
+        			hopsSeedsStack, ladderStack, ladderStack);
         	
         	GameRegistry.addSmelting(germinatedGrain.itemID, new ItemStack(maltedGrain), 0);
         }

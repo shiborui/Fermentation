@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.IPlantable;
 
 public class GerminatingGrainCrop extends Block {
 	@SideOnly(Side.CLIENT)
@@ -93,5 +95,21 @@ public class GerminatingGrainCrop extends Block {
 	        }
 
 	        return this.iconArray[par2];
+	    }
+	    
+	    @Override
+	    public boolean canBlockStay (World world, int x, int y, int z) {
+	        Block soil = blocksList[world.getBlockId(x, y - 1, z)];
+	        return (soil != null && soil.canSustainPlant(world, x, y - 1, z,
+	                        ForgeDirection.UP, (IPlantable) Fermentation.grain));
+	    }
+	    
+	    @Override
+	    public void onNeighborBlockChange (World world, int x, int y, int z,
+	            int neighborId) {
+	        if (!canBlockStay(world, x, y, z)) {
+	            dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
+	            world.setBlock(x, y, z, 0);
+	        }
 	    }
 }

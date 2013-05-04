@@ -12,6 +12,8 @@ import net.minecraft.item.Item;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.IPlantable;
 
 public class DryingGrainCrop extends Block {
 	
@@ -95,5 +97,21 @@ public class DryingGrainCrop extends Block {
 	        }
 
 	        return this.iconArray[par2];
+	    }
+	    
+	    @Override
+	    public boolean canBlockStay (World world, int x, int y, int z) {
+	        Block soil = blocksList[world.getBlockId(x, y - 1, z)];
+	        return (soil != null && soil.canSustainPlant(world, x, y - 1, z,
+	                        ForgeDirection.UP, (IPlantable) Fermentation.grain));
+	    }
+	    
+	    @Override
+	    public void onNeighborBlockChange (World world, int x, int y, int z,
+	            int neighborId) {
+	        if (!canBlockStay(world, x, y, z)) {
+	            dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
+	            world.setBlock(x, y, z, 0);
+	        }
 	    }
 }
