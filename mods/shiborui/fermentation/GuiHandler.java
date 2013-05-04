@@ -12,8 +12,10 @@ public class GuiHandler implements IGuiHandler {
     public Object getServerGuiElement(int id, EntityPlayer player, World world,
                     int x, int y, int z) {
             TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
-            if(tileEntity instanceof TileEntityTank){
-                    return new ContainerTank(player.inventory, (TileEntityTank) tileEntity);
+            if (tileEntity instanceof TileEntityTank) {
+                return new ContainerTank(player.inventory, (TileEntityTank) tileEntity);
+            } else if (tileEntity instanceof TileEntityYeastBin) {
+            	return new ContainerYeastBin(player.inventory, (TileEntityYeastBin) tileEntity);
             }
             return null;
     }
@@ -23,8 +25,10 @@ public class GuiHandler implements IGuiHandler {
     public Object getClientGuiElement(int id, EntityPlayer player, World world,
                     int x, int y, int z) {
             TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
-            if(tileEntity instanceof TileEntityTank){
-                    return new GuiTank(player.inventory, (TileEntityTank) tileEntity);
+            if(tileEntity instanceof TileEntityTank) {
+                return new GuiTank(player.inventory, (TileEntityTank) tileEntity);
+            } else if (tileEntity instanceof TileEntityYeastBin) {
+            	return new GuiYeastBin(player.inventory, (TileEntityYeastBin) tileEntity);
             }
             return null;
 

@@ -4,6 +4,7 @@ import mods.shiborui.fermentation.block.DryingGrainCrop;
 import mods.shiborui.fermentation.block.GerminatingGrainCrop;
 import mods.shiborui.fermentation.block.Tank;
 import mods.shiborui.fermentation.block.WaterproofBarrel;
+import mods.shiborui.fermentation.block.YeastBin;
 import mods.shiborui.fermentation.item.BucketBeer;
 import mods.shiborui.fermentation.item.BucketHoppedWort;
 import mods.shiborui.fermentation.item.BucketRuinedBrew;
@@ -57,6 +58,8 @@ public class Fermentation {
 	public static Item yeast;
 	public static Block waterproofBarrel;
 	public static Block tank;
+	public static Block kettle;
+	public static Block yeastBin;
 	public static Block dryingGrainCrop;
 	public static Block germinatingGrainCrop;
 	
@@ -75,8 +78,10 @@ public class Fermentation {
 	public static int yeastID = 5012;
 	public static int waterproofBarrelID = 500;
 	public static int tankID = 501;
-	public static int dryingGrainCropID = 502;
-	public static int germinatingGrainCropID = 503;
+	public static int kettleID = 502;
+	public static int yeastBinID = 503;
+	public static int dryingGrainCropID = 504;
+	public static int germinatingGrainCropID = 505;
 	
 	
         // The instance of your mod that Forge uses.
@@ -168,13 +173,19 @@ public class Fermentation {
             GameRegistry.registerBlock(tank, "fermentationTank");
             LanguageRegistry.addName(tank, "Tank");
             
+            yeastBin = new YeastBin(yeastBinID, Material.wood);
+            GameRegistry.registerBlock(yeastBin, "fermentationYeastBin");
+            LanguageRegistry.addName(yeastBin, "Yeast Bin");
+            
             GameRegistry.registerTileEntity(TileEntityTank.class, "containerTank");
+            GameRegistry.registerTileEntity(TileEntityYeastBin.class, "containerYeastBin");
         }
         
         private void registerRecipes() {
         	ItemStack stoneStack = new ItemStack(Block.stone);
         	ItemStack glassStack = new ItemStack(Block.glass);
         	ItemStack woodStack = new ItemStack(Block.wood);
+        	ItemStack planksStack = new ItemStack(Block.planks);
         	ItemStack slabStack = new ItemStack(Block.woodSingleSlab);
         	ItemStack stickStack = new ItemStack(Item.stick);
         	ItemStack wheatStack = new ItemStack(Item.wheat);
@@ -199,6 +210,10 @@ public class Fermentation {
         	GameRegistry.addRecipe(new ItemStack(tank), 
         			"xxx", "x x", "xyx", 
         			'x', ingotIronStack, 'y', blockIronStack);
+        	
+        	GameRegistry.addRecipe(new ItemStack(yeastBin), 
+        			"x x", "x x", "xxx", 
+        			'x', planksStack);
         	
         	GameRegistry.addRecipe(new ItemStack(quernStone), 
         			"x  ", "yx ", "y  ",
