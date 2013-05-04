@@ -75,6 +75,8 @@ public class TileEntityTank extends TileEntity implements IInventory{
             		 solidType = DRIEDGRAIN;
             	 } else if (solidItem.equals(Fermentation.hydratedGrain)) { 
             		 solidType = HYDRATEDGRAIN;
+            	 } else if (solidItem.equals(Fermentation.milledGrain)){
+            		 solidType = MILLEDGRAIN;
             	 } else {
             		 solidType = EMPTY;
             	 }
@@ -231,6 +233,9 @@ public class TileEntityTank extends TileEntity implements IInventory{
 	
 	public boolean setLiquidVolume(int liquidVolume) {
 		this.liquidVolume = liquidVolume;
+		if (liquidVolume == 0) {
+			liquidType = EMPTY;
+		}
 		return true;
 	}
 	
@@ -250,12 +255,15 @@ public class TileEntityTank extends TileEntity implements IInventory{
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		tickCount = 0;
 		
-		if(progress == 100) {
+		if(progress == 100 && inventory[SOLID] != null) {
 			if(inventory[SOLID].getItem().equals(Fermentation.driedGrain) && liquidType == WATER) {
 				setInventorySlotContents(SOLID, new ItemStack(Fermentation.hydratedGrain, inventory[SOLID].stackSize));
 			} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && liquidType == WATER) {
 				setInventorySlotContents(SOLID, null);
 				setLiquidType(SWEETWORT);
+			} else {
+				setInventorySlotContents(SOLID, null);
+				setLiquidType(RUINEDBREW);
 			}
 		}
 		
@@ -311,7 +319,27 @@ public class TileEntityTank extends TileEntity implements IInventory{
 					setInventorySlotContents(INPUT, null);
 					setLiquidVolume(getLiquidVolume() + 1);
 				}
-			} else if (inputItem.equals(Fermentation.driedGrain) && (inventory[SOLID] == null || inventory[SOLID].getItem().equals(Fermentation.driedGrain))) {
+			} else if (inputItem.equals(Item.bucketEmpty) && getLiquidVolume() > 0 && inventory[OUTPUT] == null) {
+				switch(liquidType) {
+					case WATER:
+						setInventorySlotContents(OUTPUT, new ItemStack(Item.bucketWater));
+						break;
+					case SWEETWORT:
+						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketSweetWort));
+						break;
+					case HOPPEDWORT:
+						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketSweetWort));
+						break;
+					
+				}
+				if(inventory[INPUT].stackSize > 1) {
+					inventory[INPUT].stackSize--;
+					setLiquidVolume(getLiquidVolume() - 1);
+				} else {
+					setInventorySlotContents(INPUT, null);
+					setLiquidVolume(getLiquidVolume() - 1);
+				}
+			} else if (inventorySlots[SOLID].getAllowedItems().contains(inputItem) && (inventory[SOLID] == null || inventory[SOLID].getItem().equals(inputItem))) {
 				if (inventory[SOLID] == null) {
 					setInventorySlotContents(SOLID, inventory[INPUT]);
 					setInventorySlotContents(INPUT, null);
@@ -329,6 +357,8 @@ public class TileEntityTank extends TileEntity implements IInventory{
 					}
 				}
 			}
+			System.out.println(inventorySlots[SOLID].getAllowedItems());
+			
 		}
 		
 		if(inventory[SOLID] != null) {

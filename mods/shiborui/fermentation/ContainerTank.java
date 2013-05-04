@@ -23,8 +23,8 @@ public class ContainerTank extends Container {
             //the Slot constructor takes the IInventory and the slot number in that it binds to
             //and the x-y coordinates it resides on-screen
             addSlotToContainer(inputSlot = new RestrictedSlot(tileEntity, 0, 62, 17));
-            addSlotToContainer(outputSlot = new RestrictedSlot(tileEntity, 1, 80, 17));
-            addSlotToContainer(solidSlot = new RestrictedSlot(tileEntity, 2, 98, 17));
+            addSlotToContainer(outputSlot = new RestrictedSlot(tileEntity, 1, 62, 53));
+            addSlotToContainer(solidSlot = new RestrictedSlot(tileEntity, 2, 116, 17));
             
             te.registerInventorySlot(inputSlot, 0);
             te.registerInventorySlot(outputSlot, 1);
@@ -33,10 +33,20 @@ public class ContainerTank extends Container {
             HashSet allowedInput = new HashSet();
             allowedInput.add(Item.bucketWater);
             allowedInput.add(Item.bucketEmpty);
+            allowedInput.add(Fermentation.milledGrain);
+            allowedInput.add(Fermentation.yeast);
+            allowedInput.add(Item.egg);
             allowedInput.add(Fermentation.driedGrain);
             inputSlot.setAllowedItems(allowedInput);
             
             outputSlot.setPlayerCanPut(false);
+            
+            HashSet allowedSolids = new HashSet();
+            allowedSolids.add(Fermentation.milledGrain);
+            allowedSolids.add(Fermentation.yeast);
+            allowedSolids.add(Item.egg);
+            allowedSolids.add(Fermentation.driedGrain);
+            solidSlot.setAllowedItems(allowedSolids);
             
             solidSlot.setPlayerCanPut(false);
             solidSlot.setPlayerCanTake(false);

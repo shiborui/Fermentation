@@ -15,6 +15,7 @@ import mods.shiborui.fermentation.item.MaltedGrain;
 import mods.shiborui.fermentation.item.MilledGrain;
 import mods.shiborui.fermentation.item.Mug;
 import mods.shiborui.fermentation.item.QuernStone;
+import mods.shiborui.fermentation.item.Yeast;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.material.Material;
@@ -51,6 +52,7 @@ public class Fermentation {
 	public static Item bucketSweetWort;
 	public static Item bucketHoppedWort;
 	public static Item bucketBeer;
+	public static Item yeast;
 	public static Block waterproofBarrel;
 	public static Block tank;
 	public static Block dryingGrainCrop;
@@ -67,6 +69,7 @@ public class Fermentation {
 	public static int bucketSweetWortID = 5008;
 	public static int bucketHoppedWortID = 5009;
 	public static int bucketBeerID = 5010;
+	public static int yeastID = 5011;
 	public static int waterproofBarrelID = 500;
 	public static int tankID = 501;
 	public static int dryingGrainCropID = 502;
@@ -147,6 +150,8 @@ public class Fermentation {
             	LanguageRegistry.addName(new ItemStack(bucketBeer, 1, subItem), BucketBeer.subItemNames[subItem]);
             }
             
+            yeast = new Yeast(yeastID);
+            LanguageRegistry.addName(yeast, "Yeast");
             
             waterproofBarrel = new WaterproofBarrel(waterproofBarrelID, Material.wood);
             GameRegistry.registerBlock(waterproofBarrel, "fermentationWaterproofBarrel");
