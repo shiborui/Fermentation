@@ -29,7 +29,7 @@ public class BucketBeer extends Item {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:BucketBeer");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:BucketBeer");
     }
 	
 	@Override

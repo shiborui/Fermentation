@@ -25,7 +25,7 @@ public class HydratedGrain extends ItemSeeds implements IPlantable {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:HydratedGrain");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:HydratedGrain");
     }
 	
 	@Override

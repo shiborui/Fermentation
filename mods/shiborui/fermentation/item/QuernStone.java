@@ -9,7 +9,7 @@ public class QuernStone extends Item {
 	public QuernStone(int id) {
         super(id);
         // Constructor Configuration
-        setMaxStackSize(16);
+        setMaxStackSize(1);
         setCreativeTab(CreativeTabs.tabMisc);
         setUnlocalizedName("fermentationQuernStone");
 	}
@@ -22,6 +22,6 @@ public class QuernStone extends Item {
 	@Override
 	public void registerIcons(IconRegister iconRegister)
 	{
-	         this.itemIcon = iconRegister.registerIcon("Fermentation:QuernStone");
+	         this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:QuernStone");
 	}
 }

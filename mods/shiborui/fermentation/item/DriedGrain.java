@@ -16,6 +16,6 @@ public class DriedGrain extends Item {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:DriedGrain");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:DriedGrain");
     }
 }

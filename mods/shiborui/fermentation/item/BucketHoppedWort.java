@@ -17,6 +17,6 @@ public class BucketHoppedWort extends Item {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:BucketHoppedWort");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:BucketHoppedWort");
     }
 }

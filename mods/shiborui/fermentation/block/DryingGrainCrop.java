@@ -78,8 +78,8 @@ public class DryingGrainCrop extends Block {
 	    public void registerIcons(IconRegister iconRegister)
 	    {
 	    	this.iconArray = new Icon[2];
-	        this.iconArray[0] = iconRegister.registerIcon("Fermentation:DryingGrainCrop");
-	        this.iconArray[1] = iconRegister.registerIcon("Fermentation:DryGrainCrop");
+	        this.iconArray[0] = iconRegister.registerIcon("shiborui/fermentation:DryingGrainCrop");
+	        this.iconArray[1] = iconRegister.registerIcon("shiborui/fermentation:DryGrainCrop");
 	    }
 	    
 	    @SideOnly(Side.CLIENT)

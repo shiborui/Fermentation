@@ -15,6 +15,6 @@ public class WaterproofBarrel extends Block {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.blockIcon = iconRegister.registerIcon("Fermentation:WaterproofBarrel");
+             this.blockIcon = iconRegister.registerIcon("shiborui/fermentation:WaterproofBarrel");
     }
 }

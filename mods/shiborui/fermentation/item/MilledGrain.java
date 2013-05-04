@@ -15,6 +15,6 @@ public class MilledGrain extends Item {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:MilledGrain");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:MilledGrain");
     }
 }

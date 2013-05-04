@@ -127,6 +127,6 @@ public class Tank extends BlockContainer {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.blockIcon = iconRegister.registerIcon("Fermentation:Tank");
+             this.blockIcon = iconRegister.registerIcon("shiborui/fermentation:Tank");
     }
 }

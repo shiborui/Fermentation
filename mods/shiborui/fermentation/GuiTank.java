@@ -28,13 +28,20 @@ public class GuiTank extends GuiContainer {
             //the parameters for drawString are: string, x, y, color
 			String liquidType;
 			switch(tileEntity.getLiquidType()) {
-				case 0: liquidType = "Liquid";
-						break;
-				case 1: liquidType = "Water";
-						break;
-				case 2: liquidType = "Sweet Wort";
-						break;
-				default: liquidType = "Invalid";
+				case -1:
+					liquidType = "Ruined Brew";
+					break;
+				case 0:
+					liquidType = "Liquid";
+					break;
+				case 1:
+					liquidType = "Water";
+					break;
+				case 2:
+					liquidType = "Sweet Wort";
+					break;
+				default:
+					liquidType = "Invalid";
 			}
 			String solidType;
 			switch(tileEntity.getSolidType()) {
@@ -61,9 +68,9 @@ public class GuiTank extends GuiContainer {
     protected void drawGuiContainerBackgroundLayer(float par1, int par2,
                     int par3) {
             //draw your Gui here, only thing you need to change is the path
-            int texture = mc.renderEngine.getTexture("/mods/Fermentation/textures/gui/Tank.png");
+            int texture = mc.renderEngine.getTexture("/mods/shiborui/fermentation/textures/gui/Tank.png");
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.mc.renderEngine.bindTexture("/mods/Fermentation/textures/gui/Tank.png");
+            this.mc.renderEngine.bindTexture("/mods/shiborui/fermentation/textures/gui/Tank.png");
             int x = (width - xSize) / 2;
             int y = (height - ySize) / 2;
             this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);

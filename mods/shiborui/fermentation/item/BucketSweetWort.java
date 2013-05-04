@@ -17,6 +17,6 @@ public class BucketSweetWort extends Item {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:BucketSweetWort");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:BucketSweetWort");
     }
 }

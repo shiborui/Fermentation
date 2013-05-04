@@ -18,6 +18,6 @@ public class Mug extends Item {
         @Override
         public void registerIcons(IconRegister iconRegister)
         {
-                 this.itemIcon = iconRegister.registerIcon("Fermentation:Mug");
+                 this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:Mug");
         }
 }

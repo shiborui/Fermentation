@@ -18,6 +18,6 @@ public class GerminatedGrain extends Item {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:GerminatedGrain");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:GerminatedGrain");
     }
 }

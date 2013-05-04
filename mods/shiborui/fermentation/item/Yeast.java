@@ -22,6 +22,6 @@ public class Yeast extends Item {
 	@Override
     public void registerIcons(IconRegister iconRegister)
     {
-             this.itemIcon = iconRegister.registerIcon("Fermentation:Yeast");
+             this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:Yeast");
     }
 }
