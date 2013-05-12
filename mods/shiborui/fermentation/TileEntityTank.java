@@ -1,9 +1,13 @@
 package mods.shiborui.fermentation;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -11,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileEntityTank extends TileEntity implements IInventory{
@@ -392,5 +397,33 @@ public class TileEntityTank extends TileEntity implements IInventory{
 			tickCount = 0;
 			setProgress(0);
 		}
+	}
+	
+	public void sendStateToClient(EntityPlayer player) {
+		//packet building
+        Side side = FMLCommonHandler.instance().getEffectiveSide();
+        
+        if(side == Side.SERVER) {
+        	ByteArrayOutputStream bos = new ByteArrayOutputStream(8);
+            DataOutputStream outputStream = new DataOutputStream(bos);
+            try {
+            		outputStream.writeInt(this.xCoord);
+                    outputStream.writeInt(this.yCoord);
+                    outputStream.writeInt(this.zCoord);
+                    outputStream.writeByte(this.getLiquidType());
+                    outputStream.writeByte(this.getLiquidVolume());
+                    outputStream.writeByte(this.getSolidType());
+                    outputStream.writeByte(this.getSolidCount());
+                    outputStream.writeByte(this.getProgress());
+            } catch (Exception ex) {
+                    ex.printStackTrace();
+            }
+
+            Packet250CustomPayload packet = new Packet250CustomPayload();
+            packet.channel = "FermentationTank";
+            packet.data = bos.toByteArray();
+            packet.length = bos.size();
+            PacketDispatcher.sendPacketToPlayer(packet, (Player) player);
+        }
 	}
 }
