@@ -18,7 +18,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 
-public class TileEntityTank extends TileEntity implements IInventory{
+public class TileEntityTank extends TileEntity implements IInventory {
 	 private ItemStack[] inventory;
 	 private int liquidType = 0;
 	 private int liquidVolume = 0;
@@ -336,7 +336,7 @@ public class TileEntityTank extends TileEntity implements IInventory{
 						setInventorySlotContents(OUTPUT, new ItemStack(Item.bucketEmpty));
 						setInventorySlotContents(INPUT, null);
 						setLiquidVolume(getLiquidVolume() + 1);
-					} else if (outputItem.equals(Item.bucketEmpty) && inventory[OUTPUT].stackSize < 16){
+					} else if (outputItem.equals(Item.bucketEmpty) && inventory[OUTPUT].stackSize < 16) {
 						inventory[OUTPUT].stackSize++;
 						setInventorySlotContents(INPUT, null);
 						setLiquidVolume(getLiquidVolume() + 1);
@@ -400,7 +400,6 @@ public class TileEntityTank extends TileEntity implements IInventory{
 	}
 	
 	public void sendStateToClient(EntityPlayer player) {
-		//packet building
         Side side = FMLCommonHandler.instance().getEffectiveSide();
         
         if(side == Side.SERVER) {
@@ -420,7 +419,7 @@ public class TileEntityTank extends TileEntity implements IInventory{
             }
 
             Packet250CustomPayload packet = new Packet250CustomPayload();
-            packet.channel = "FermentationTank";
+            packet.channel = "FmtnTank";
             packet.data = bos.toByteArray();
             packet.length = bos.size();
             PacketDispatcher.sendPacketToPlayer(packet, (Player) player);

@@ -7,7 +7,6 @@ import cpw.mods.fml.common.network.IGuiHandler;
 
 public class GuiHandler implements IGuiHandler {
 	
-	//returns an instance of the Container you made earlier
     @Override
     public Object getServerGuiElement(int id, EntityPlayer player, World world,
                     int x, int y, int z) {
@@ -16,11 +15,12 @@ public class GuiHandler implements IGuiHandler {
                 return new ContainerTank(player.inventory, (TileEntityTank) tileEntity);
             } else if (tileEntity instanceof TileEntityYeastBin) {
             	return new ContainerYeastBin(player.inventory, (TileEntityYeastBin) tileEntity);
+            } else if (tileEntity instanceof TileEntityKettle) {
+            	return new ContainerKettle(player.inventory, (TileEntityKettle) tileEntity);
             }
             return null;
     }
 
-    //returns an instance of the Gui you made earlier
     @Override
     public Object getClientGuiElement(int id, EntityPlayer player, World world,
                     int x, int y, int z) {
@@ -29,9 +29,9 @@ public class GuiHandler implements IGuiHandler {
                 return new GuiTank(player.inventory, (TileEntityTank) tileEntity);
             } else if (tileEntity instanceof TileEntityYeastBin) {
             	return new GuiYeastBin(player.inventory, (TileEntityYeastBin) tileEntity);
+            } else if (tileEntity instanceof TileEntityKettle) {
+            	return new GuiKettle(player.inventory, (TileEntityKettle) tileEntity);
             }
             return null;
-
     }
-
 }

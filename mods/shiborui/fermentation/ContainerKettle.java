@@ -8,60 +8,55 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 
-public class ContainerTank extends Container {
+public class ContainerKettle extends Container{
 
-	protected TileEntityTank tileEntity;
+	protected TileEntityKettle tileEntity;
 	protected RestrictedSlot inputSlot;
 	protected RestrictedSlot outputSlot;
-	protected RestrictedSlot solidSlot;
-
-    public ContainerTank (InventoryPlayer inventoryPlayer, TileEntityTank te) {
-            tileEntity = te;
-
-            //the Slot constructor takes the IInventory and the slot number in that it binds to
-            //and the x-y coordinates it resides on-screen
-            addSlotToContainer(inputSlot = new RestrictedSlot(tileEntity, 0, 62, 17));
-            addSlotToContainer(outputSlot = new RestrictedSlot(tileEntity, 1, 62, 53));
-            addSlotToContainer(solidSlot = new RestrictedSlot(tileEntity, 2, 116, 17));
-            
-            te.registerInventorySlot(inputSlot, 0);
-            te.registerInventorySlot(outputSlot, 1);
-            te.registerInventorySlot(solidSlot, 2);
-            
-            HashSet allowedInput = new HashSet();
-            allowedInput.add(Item.bucketWater);
-            allowedInput.add(Fermentation.bucketSweetWort);
-            allowedInput.add(Item.bucketEmpty);
-            allowedInput.add(Fermentation.milledGrain);
-            allowedInput.add(Fermentation.yeast);
-            allowedInput.add(Item.egg);
-            allowedInput.add(Fermentation.driedGrain);
-            inputSlot.setAllowedItems(allowedInput);
-            
-            outputSlot.setPlayerCanPut(false);
-            
-            HashSet allowedSolids = new HashSet();
-            allowedSolids.add(Fermentation.milledGrain);
-            allowedSolids.add(Fermentation.yeast);
-            allowedSolids.add(Item.egg);
-            allowedSolids.add(Fermentation.driedGrain);
-            solidSlot.setAllowedItems(allowedSolids);
-            
-            solidSlot.setPlayerCanPut(false);
-            solidSlot.setPlayerCanTake(false);
-
-            //commonly used vanilla code that adds the player's inventory
-            bindPlayerInventory(inventoryPlayer);
-    }
-    
-    @Override
+	protected RestrictedSlot hopsSlot;
+	protected RestrictedSlot fuelSlot;
+	
+	public ContainerKettle (InventoryPlayer inventoryPlayer, TileEntityKettle te) {
+		tileEntity = te;
+		
+		//the Slot constructor takes the IInventory and the slot number in that it binds to
+        //and the x-y coordinates it resides on-screen
+        addSlotToContainer(inputSlot = new RestrictedSlot(tileEntity, 0, 62, 17));
+        addSlotToContainer(outputSlot = new RestrictedSlot(tileEntity, 1, 62, 53));
+        addSlotToContainer(hopsSlot = new RestrictedSlot(tileEntity, 2, 116, 17));
+        addSlotToContainer(fuelSlot = new RestrictedSlot(tileEntity, 3, 134, 53));
+        
+        te.registerInventorySlot(inputSlot, 0);
+        te.registerInventorySlot(outputSlot, 1);
+        te.registerInventorySlot(hopsSlot, 2);
+        te.registerInventorySlot(fuelSlot, 3);
+        
+        HashSet allowedInput = new HashSet();
+        allowedInput.add(Fermentation.bucketSweetWort);
+        allowedInput.add(Item.bucketEmpty);
+        allowedInput.add(Fermentation.hops);
+        inputSlot.setAllowedItems(allowedInput);
+        
+        outputSlot.setPlayerCanPut(false);
+        
+        HashSet allowedSolids = new HashSet();
+        allowedSolids.add(Fermentation.hops);
+        hopsSlot.setAllowedItems(allowedSolids);
+        
+        hopsSlot.setPlayerCanPut(false);
+        hopsSlot.setPlayerCanTake(false);
+        
+      //commonly used vanilla code that adds the player's inventory
+        bindPlayerInventory(inventoryPlayer);
+	}
+	
+	@Override
     public boolean canInteractWith(EntityPlayer player) {
             return tileEntity.isUseableByPlayer(player);
     }
-    
-    protected void bindPlayerInventory(InventoryPlayer inventoryPlayer) {
+	
+	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer) {
         for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 9; j++) {
                         addSlotToContainer(new Slot(inventoryPlayer, j + i * 9 + 9,
@@ -73,8 +68,8 @@ public class ContainerTank extends Container {
                 addSlotToContainer(new Slot(inventoryPlayer, i, 8 + i * 18, 142));
         }
     }
-    
-    @Override
+	
+	@Override
     public ItemStack transferStackInSlot(EntityPlayer player, int slot) {
             ItemStack stack = null;
             Slot slotObject = (Slot) inventorySlots.get(slot);
@@ -108,5 +103,6 @@ public class ContainerTank extends Container {
             }
             return stack;
     }
-
+	
+	
 }

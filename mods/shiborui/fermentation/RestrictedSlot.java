@@ -34,7 +34,7 @@ public class RestrictedSlot extends Slot {
      */
     public boolean isItemValid(ItemStack itemStack)
     {
-		if (playerCanPut && allowedItems.contains(itemStack.getItem())) {
+		if (playerCanPut && (allowedItems.contains(itemStack.getItem()) || allowedItems.isEmpty())) {
 			return true;
 		} else {
 			return false;

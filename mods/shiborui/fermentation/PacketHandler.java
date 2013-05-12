@@ -19,9 +19,10 @@ public class PacketHandler implements IPacketHandler{
 	public void onPacketData(INetworkManager manager,
         Packet250CustomPayload packet, Player playerEntity) {
 		
-		if (packet.channel.equals("FermentationTank")) {
+		if (packet.channel.equals("FmtnTank")) {
 			handleTank(packet, playerEntity);
-		
+		} else if (packet.channel.equals("FmtnKettle")) {
+			handleKettle(packet, playerEntity);
 		}
 	}
 	
@@ -51,6 +52,41 @@ public class PacketHandler implements IPacketHandler{
 				tankTileEntity.setSolidType(solidType);
 				tankTileEntity.setSolidCount(solidCount);
 				tankTileEntity.setProgress(progress);
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void handleKettle(Packet250CustomPayload packet, Player playerEntity) {
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		
+		DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+		
+		int x, y, z;
+		byte liquidType, liquidVolume, progress;
+		int kettleBurnTime, storedHeat;
+		
+		try {
+			x = inputStream.readInt();
+			y = inputStream.readInt();
+			z = inputStream.readInt();
+			liquidType = inputStream.readByte();
+			liquidVolume = inputStream.readByte();
+			kettleBurnTime = inputStream.readInt();
+			storedHeat = inputStream.readInt();
+			progress = inputStream.readByte();
+			
+			if (side == Side.CLIENT) {
+				EntityPlayer entityPlayer = (EntityPlayer) playerEntity;
+				TileEntityKettle kettleTileEntity = (TileEntityKettle) entityPlayer.worldObj.getBlockTileEntity(x, y, z);
+				kettleTileEntity.setLiquidType(liquidType);
+				kettleTileEntity.setLiquidVolume(liquidVolume);
+				kettleTileEntity.setKettleBurnTime(kettleBurnTime);
+				kettleTileEntity.setStoredHeat(storedHeat);
+				kettleTileEntity.setProgress(progress);
 			}
 			
 		} catch (IOException e) {
