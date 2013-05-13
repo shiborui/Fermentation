@@ -27,6 +27,7 @@ import mods.shiborui.fermentation.item.VineAssembly;
 import mods.shiborui.fermentation.item.Yeast;
 import mods.shiborui.fermentation.tileentity.TileEntityKettle;
 import mods.shiborui.fermentation.tileentity.TileEntityTank;
+import mods.shiborui.fermentation.tileentity.TileEntityWaterproofBarrel;
 import mods.shiborui.fermentation.tileentity.TileEntityYeastBin;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSand;
@@ -51,7 +52,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 
 
 @Mod(modid="Fermentation", name="Fermentation", version="0.0.0")
-@NetworkMod(clientSideRequired=true, serverSideRequired=false, channels={"FmtnTank", "FmtnKettle"}, packetHandler = PacketHandler.class)
+@NetworkMod(clientSideRequired=true, serverSideRequired=false, channels={"FmtnTank", "FmtnKettle", "FmtnWPBarrel"}, packetHandler = PacketHandler.class)
 public class Fermentation {
 
 	public static Item mug;
@@ -229,7 +230,8 @@ public class Fermentation {
             
             GameRegistry.registerTileEntity(TileEntityTank.class, "containerTank");
             GameRegistry.registerTileEntity(TileEntityYeastBin.class, "containerYeastBin");
-            GameRegistry.registerTileEntity(TileEntityKettle.class, "caintainerKettle");
+            GameRegistry.registerTileEntity(TileEntityKettle.class, "containerKettle");
+            GameRegistry.registerTileEntity(TileEntityWaterproofBarrel.class, "containerWaterproofBarrel");
         }
         
         private void registerRecipes() {

@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import mods.shiborui.fermentation.tileentity.TileEntityKettle;
 import mods.shiborui.fermentation.tileentity.TileEntityTank;
+import mods.shiborui.fermentation.tileentity.TileEntityWaterproofBarrel;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
@@ -25,6 +26,8 @@ public class PacketHandler implements IPacketHandler{
 			handleTank(packet, playerEntity);
 		} else if (packet.channel.equals("FmtnKettle")) {
 			handleKettle(packet, playerEntity);
+		} else if (packet.channel.equals("FmtnWPBarrel")) {
+			handleWaterproofBarrel(packet, playerEntity);
 		}
 	}
 	
@@ -89,6 +92,34 @@ public class PacketHandler implements IPacketHandler{
 				kettleTileEntity.setKettleBurnTime(kettleBurnTime);
 				kettleTileEntity.setStoredHeat(storedHeat);
 				kettleTileEntity.setProgress(progress);
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void handleWaterproofBarrel(Packet250CustomPayload packet, Player playerEntity) {
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		
+		DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+		
+		int x, y, z;
+		byte liquidType, liquidVolume;
+		
+		try {
+			x = inputStream.readInt();
+			y = inputStream.readInt();
+			z = inputStream.readInt();
+			liquidType = inputStream.readByte();
+			liquidVolume = inputStream.readByte();
+			
+			if (side == Side.CLIENT) {
+				EntityPlayer entityPlayer = (EntityPlayer) playerEntity;
+				TileEntityWaterproofBarrel waterproofBarrelTileEntity = (TileEntityWaterproofBarrel) entityPlayer.worldObj.getBlockTileEntity(x, y, z);
+				waterproofBarrelTileEntity.setLiquidType(liquidType);
+				waterproofBarrelTileEntity.setLiquidVolume(liquidVolume);
 			}
 			
 		} catch (IOException e) {

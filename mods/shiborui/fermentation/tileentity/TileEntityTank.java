@@ -343,6 +343,9 @@ public class TileEntityTank extends TileEntity implements IInventory {
 				} else if (inputItem.equals(Fermentation.bucketHoppedWort) && (getLiquidType() == HOPPEDWORT || getLiquidType() == EMPTY)) {
 					setLiquidType(HOPPEDWORT);
 					willTakeLiquid = true;
+				} else if (inventory[INPUT].getItem().equals(Fermentation.bucketBeer) && (getLiquidType() == BEER || getLiquidType() == EMPTY)) {
+					setLiquidType(BEER);
+					willTakeLiquid = true;
 				}
 				if(willTakeLiquid) {
 					if(inventory[OUTPUT] == null) {
@@ -362,6 +365,9 @@ public class TileEntityTank extends TileEntity implements IInventory {
 						break;
 					case SWEETWORT:
 						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketSweetWort));
+						break;
+					case HOPPEDWORT:
+						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketHoppedWort));
 						break;
 					case BEER:
 						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketBeer));
