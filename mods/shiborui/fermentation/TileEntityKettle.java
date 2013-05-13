@@ -2,6 +2,7 @@ package mods.shiborui.fermentation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -239,10 +240,20 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 	
 	public boolean setProgress(int progress) {
 		this.progress = progress;
+		this.tickCount = 0;
 		
 		if (progress >= 100 & inventory[HOPS] != null) {
-			this.liquidType = HOPPEDWORT;
-			inventory[HOPS] = null;
+			Side side = FMLCommonHandler.instance().getEffectiveSide();
+			if (side == Side.SERVER) {
+				this.liquidType = HOPPEDWORT;
+				inventory[HOPS] = null;
+				List<EntityPlayer> players = worldObj.playerEntities;
+				for (int i = 0; i < players.size(); i++) {
+					if (this.isUseableByPlayer(players.get(i))) {
+						this.sendStateToClient(players.get(i));
+					}
+				}
+			}
 		}
 		
 		updateSlotConfiguration();

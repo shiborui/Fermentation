@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -193,7 +194,7 @@ public class TileEntityTank extends TileEntity implements IInventory {
 	public void updateEntity() {
 		if(active) {
 			//if(++tickCount == 240) {
-			if(++tickCount == 24) { //10x speed for development
+			if(++tickCount == 24) { //10x speed for testing
 				incrementProgress();
 			}
 		}
@@ -261,21 +262,29 @@ public class TileEntityTank extends TileEntity implements IInventory {
 		tickCount = 0;
 		
 		if(progress == 100 && inventory[SOLID] != null) {
-			System.out.println(inventory[SOLID] + " " + liquidType);
-			if(inventory[SOLID].getItem().equals(Fermentation.driedGrain) && liquidType == WATER) {
-				setInventorySlotContents(SOLID, new ItemStack(Fermentation.hydratedGrain, inventory[SOLID].stackSize));
-			} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && liquidType == WATER) {
-				setInventorySlotContents(SOLID, null);
-				setSolidCount(0);
-				setLiquidType(SWEETWORT);
-			} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && liquidType == HOPPEDWORT) {
-				setInventorySlotContents(SOLID, null);
-				setSolidCount(0);
-				setLiquidType(BEER);
-			} else {
-				setInventorySlotContents(SOLID, null);
-				setSolidCount(0);
-				setLiquidType(RUINEDBREW);
+			Side side = FMLCommonHandler.instance().getEffectiveSide();
+			if (side == Side.SERVER) {
+				if(inventory[SOLID].getItem().equals(Fermentation.driedGrain) && liquidType == WATER) {
+					setInventorySlotContents(SOLID, new ItemStack(Fermentation.hydratedGrain, inventory[SOLID].stackSize));
+				} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && liquidType == WATER) {
+					setInventorySlotContents(SOLID, null);
+					setSolidCount(0);
+					setLiquidType(SWEETWORT);
+				} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && liquidType == HOPPEDWORT) {
+					setInventorySlotContents(SOLID, null);
+					setSolidCount(0);
+					setLiquidType(BEER);
+				} else {
+					setInventorySlotContents(SOLID, null);
+					setSolidCount(0);
+					setLiquidType(RUINEDBREW);
+				}
+				List<EntityPlayer> players = worldObj.playerEntities;
+				for (int i = 0; i < players.size(); i++) {
+					if (this.isUseableByPlayer(players.get(i))) {
+						this.sendStateToClient(players.get(i));
+					}
+				}
 			}
 		}
 		
@@ -395,10 +404,10 @@ public class TileEntityTank extends TileEntity implements IInventory {
 		
 		updateSlotConfiguration();
 		
+		boolean canProgress = false;
 		if (liquidVolume > 0 && solidCount > 0) {
 			
-		} else {
-			tickCount = 0;
+		} else if (liquidType != SWEETWORT && liquidType != BEER) {
 			setProgress(0);
 		}
 	}
