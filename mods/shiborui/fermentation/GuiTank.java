@@ -40,6 +40,12 @@ public class GuiTank extends GuiContainer {
 				case 2:
 					liquidType = "Sweet Wort";
 					break;
+				case 3:
+					liquidType = "Hopped Wort";
+					break;
+				case 4:
+					liquidType = "Beer";
+					break;
 				default:
 					liquidType = "Invalid";
 			}

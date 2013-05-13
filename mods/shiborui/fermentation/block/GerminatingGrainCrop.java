@@ -100,8 +100,7 @@ public class GerminatingGrainCrop extends Block {
 	    @Override
 	    public boolean canBlockStay (World world, int x, int y, int z) {
 	        Block soil = blocksList[world.getBlockId(x, y - 1, z)];
-	        return (soil != null && soil.canSustainPlant(world, x, y - 1, z,
-	                        ForgeDirection.UP, (IPlantable) Fermentation.grain));
+	        return (soil != null);
 	    }
 	    
 	    @Override

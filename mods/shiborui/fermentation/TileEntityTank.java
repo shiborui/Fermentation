@@ -41,10 +41,7 @@ public class TileEntityTank extends TileEntity implements IInventory {
 	 public static final int WATER = 1;
 	 public static final int SWEETWORT = 2;
 	 public static final int HOPPEDWORT = 3;
-	 public static final int YOUNGCLOUDYBEER = 4;
-	 public static final int AGEDCLOUDYBEER = 5;
-	 public static final int YOUNGBEER = 6;
-	 public static final int AGEDBEER = 7;
+	 public static final int BEER = 4;
 	 
 	 public static final int DRIEDGRAIN = 1;
 	 public static final int HYDRATEDGRAIN = 2;
@@ -264,12 +261,17 @@ public class TileEntityTank extends TileEntity implements IInventory {
 		tickCount = 0;
 		
 		if(progress == 100 && inventory[SOLID] != null) {
+			System.out.println(inventory[SOLID] + " " + liquidType);
 			if(inventory[SOLID].getItem().equals(Fermentation.driedGrain) && liquidType == WATER) {
 				setInventorySlotContents(SOLID, new ItemStack(Fermentation.hydratedGrain, inventory[SOLID].stackSize));
 			} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && liquidType == WATER) {
 				setInventorySlotContents(SOLID, null);
 				setSolidCount(0);
 				setLiquidType(SWEETWORT);
+			} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && liquidType == HOPPEDWORT) {
+				setInventorySlotContents(SOLID, null);
+				setSolidCount(0);
+				setLiquidType(BEER);
 			} else {
 				setInventorySlotContents(SOLID, null);
 				setSolidCount(0);
@@ -350,10 +352,12 @@ public class TileEntityTank extends TileEntity implements IInventory {
 					case SWEETWORT:
 						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketSweetWort));
 						break;
-					case HOPPEDWORT:
-						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketSweetWort));
+					case BEER:
+						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketBeer));
 						break;
-					
+					case RUINEDBREW:
+						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketRuinedBrew));
+						break;
 				}
 				if(inventory[INPUT].stackSize > 1) {
 					inventory[INPUT].stackSize--;

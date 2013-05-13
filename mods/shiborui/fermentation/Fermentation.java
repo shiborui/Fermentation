@@ -235,6 +235,7 @@ public class Fermentation {
         	ItemStack blockIronStack = new ItemStack(Block.blockIron);
         	ItemStack ingotIronStack = new ItemStack(Item.ingotIron);
         	ItemStack ladderStack = new ItemStack(Block.ladder);
+        	ItemStack furnaceStack = new ItemStack(Block.furnaceIdle);
         	
         	ItemStack maltedGrainStack = new ItemStack(maltedGrain);
         	ItemStack quernStoneStack = new ItemStack(quernStone);
@@ -259,6 +260,10 @@ public class Fermentation {
         	GameRegistry.addRecipe(new ItemStack(yeastBin), 
         			"x x", "x x", "xxx", 
         			'x', planksStack);
+        	
+        	GameRegistry.addRecipe(new ItemStack(kettle),
+        			"xxx", "x x", "xyx",
+        			'x', ingotIronStack, 'y', furnaceStack);
         	
         	GameRegistry.addRecipe(new ItemStack(quernStone), 
         			"x  ", "yx ", "y  ",
