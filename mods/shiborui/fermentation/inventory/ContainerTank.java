@@ -1,7 +1,9 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.inventory;
 
 import java.util.HashSet;
 
+import mods.shiborui.fermentation.Fermentation;
+import mods.shiborui.fermentation.tileentity.TileEntityTank;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;

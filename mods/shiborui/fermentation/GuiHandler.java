@@ -1,5 +1,14 @@
 package mods.shiborui.fermentation;
 
+import mods.shiborui.fermentation.gui.GuiKettle;
+import mods.shiborui.fermentation.gui.GuiTank;
+import mods.shiborui.fermentation.gui.GuiYeastBin;
+import mods.shiborui.fermentation.inventory.ContainerKettle;
+import mods.shiborui.fermentation.inventory.ContainerTank;
+import mods.shiborui.fermentation.inventory.ContainerYeastBin;
+import mods.shiborui.fermentation.tileentity.TileEntityKettle;
+import mods.shiborui.fermentation.tileentity.TileEntityTank;
+import mods.shiborui.fermentation.tileentity.TileEntityYeastBin;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;

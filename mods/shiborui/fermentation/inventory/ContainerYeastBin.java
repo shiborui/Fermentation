@@ -1,7 +1,9 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.inventory;
 
 import java.util.HashSet;
 
+import mods.shiborui.fermentation.Fermentation;
+import mods.shiborui.fermentation.tileentity.TileEntityYeastBin;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -9,52 +11,34 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-public class ContainerKettle extends Container{
+public class ContainerYeastBin extends Container {
 
-	protected TileEntityKettle tileEntity;
-	protected RestrictedSlot inputSlot;
-	protected RestrictedSlot outputSlot;
-	protected RestrictedSlot hopsSlot;
-	protected RestrictedSlot fuelSlot;
+	protected TileEntityYeastBin tileEntity;
+	protected RestrictedSlot potatoSlot;
+	protected RestrictedSlot waterSlot;
+	protected RestrictedSlot yeastSlot;
 	
-	public ContainerKettle (InventoryPlayer inventoryPlayer, TileEntityKettle te) {
-		tileEntity = te;
-		
-		//the Slot constructor takes the IInventory and the slot number in that it binds to
+	public ContainerYeastBin (InventoryPlayer inventoryPlayer, TileEntityYeastBin te){
+        tileEntity = te;
+        
+        HashSet allowedPotato = new HashSet();
+        allowedPotato.add(Item.potato);
+        
+        HashSet allowedWater = new HashSet();
+        allowedWater.add(Item.bucketWater);
+        
+        HashSet allowedYeast = new HashSet();
+        allowedYeast.add(Fermentation.yeast);
+
+        //the Slot constructor takes the IInventory and the slot number in that it binds to
         //and the x-y coordinates it resides on-screen
-        addSlotToContainer(inputSlot = new RestrictedSlot(tileEntity, 0, 62, 17));
-        addSlotToContainer(outputSlot = new RestrictedSlot(tileEntity, 1, 62, 53));
-        addSlotToContainer(hopsSlot = new RestrictedSlot(tileEntity, 2, 116, 17));
-        addSlotToContainer(fuelSlot = new RestrictedSlot(tileEntity, 3, 134, 53));
-        
-        te.registerInventorySlot(inputSlot, 0);
-        te.registerInventorySlot(outputSlot, 1);
-        te.registerInventorySlot(hopsSlot, 2);
-        te.registerInventorySlot(fuelSlot, 3);
-        
-        HashSet allowedInput = new HashSet();
-        allowedInput.add(Fermentation.bucketSweetWort);
-        allowedInput.add(Item.bucketEmpty);
-        allowedInput.add(Fermentation.hops);
-        inputSlot.setAllowedItems(allowedInput);
-        
-        outputSlot.setPlayerCanPut(false);
-        
-        HashSet allowedSolids = new HashSet();
-        allowedSolids.add(Fermentation.hops);
-        hopsSlot.setAllowedItems(allowedSolids);
-        
-        hopsSlot.setPlayerCanPut(false);
-        hopsSlot.setPlayerCanTake(false);
-        
-      //commonly used vanilla code that adds the player's inventory
+        addSlotToContainer(potatoSlot = new RestrictedSlot(tileEntity, 0, 62, 17, allowedPotato, true, true));
+        addSlotToContainer(waterSlot = new RestrictedSlot(tileEntity, 1, 62, 53, allowedWater, true, true));
+        addSlotToContainer(yeastSlot = new RestrictedSlot(tileEntity, 2, 116, 17, allowedYeast, true, true));
+
+        //commonly used vanilla code that adds the player's inventory
         bindPlayerInventory(inventoryPlayer);
 	}
-	
-	@Override
-    public boolean canInteractWith(EntityPlayer player) {
-            return tileEntity.isUseableByPlayer(player);
-    }
 	
 	protected void bindPlayerInventory(InventoryPlayer inventoryPlayer) {
         for (int i = 0; i < 3; i++) {
@@ -68,6 +52,11 @@ public class ContainerKettle extends Container{
                 addSlotToContainer(new Slot(inventoryPlayer, i, 8 + i * 18, 142));
         }
     }
+	
+	@Override
+	public boolean canInteractWith(EntityPlayer player) {
+		return tileEntity.isUseableByPlayer(player);
+	}
 	
 	@Override
     public ItemStack transferStackInSlot(EntityPlayer player, int slot) {
@@ -103,6 +92,5 @@ public class ContainerKettle extends Container{
             }
             return stack;
     }
-	
-	
+
 }

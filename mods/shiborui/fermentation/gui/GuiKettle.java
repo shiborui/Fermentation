@@ -1,9 +1,11 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.gui;
 
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import mods.shiborui.fermentation.inventory.ContainerKettle;
+import mods.shiborui.fermentation.tileentity.TileEntityKettle;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.StatCollector;

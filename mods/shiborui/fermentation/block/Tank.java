@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.util.Random;
 
 import mods.shiborui.fermentation.Fermentation;
-import mods.shiborui.fermentation.TileEntityTank;
+import mods.shiborui.fermentation.tileentity.TileEntityTank;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;

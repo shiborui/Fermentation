@@ -1,4 +1,4 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

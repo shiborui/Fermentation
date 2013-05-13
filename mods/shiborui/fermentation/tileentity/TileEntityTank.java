@@ -1,4 +1,4 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.tileentity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -10,6 +10,8 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
+import mods.shiborui.fermentation.Fermentation;
+import mods.shiborui.fermentation.inventory.RestrictedSlot;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;

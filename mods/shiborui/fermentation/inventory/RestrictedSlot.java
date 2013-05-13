@@ -1,4 +1,4 @@
-package mods.shiborui.fermentation;
+package mods.shiborui.fermentation.inventory;
 
 import java.util.HashSet;
 import java.util.Set;
