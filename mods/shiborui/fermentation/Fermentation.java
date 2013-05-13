@@ -8,6 +8,7 @@ import mods.shiborui.fermentation.block.Tank;
 import mods.shiborui.fermentation.block.VineScaffold;
 import mods.shiborui.fermentation.block.WaterproofBarrel;
 import mods.shiborui.fermentation.block.YeastBin;
+import mods.shiborui.fermentation.item.Beer;
 import mods.shiborui.fermentation.item.BucketBeer;
 import mods.shiborui.fermentation.item.BucketHoppedWort;
 import mods.shiborui.fermentation.item.BucketRuinedBrew;
@@ -69,6 +70,7 @@ public class Fermentation {
 	public static Item hops;
 	public static Item vineAssembly;
 	public static Item hopsSeeds;
+	public static Item beer;
 	public static Block waterproofBarrel;
 	public static Block tank;
 	public static Block kettle;
@@ -94,6 +96,7 @@ public class Fermentation {
 	public static int hopsID = 5013;
 	public static int vineAssemblyID = 5014;
 	public static int hopsSeedsID = 5015;
+	public static int beerID = 5016;
 	public static int waterproofBarrelID = 500;
 	public static int tankID = 501;
 	public static int kettleID = 502;
@@ -204,6 +207,9 @@ public class Fermentation {
             hopsSeeds = new HopsSeeds(hopsSeedsID);
             MinecraftForge.addGrassSeed(new ItemStack(hopsSeeds), 1);
             LanguageRegistry.addName(hopsSeeds, "Hops Seeds");
+            
+            beer = new Beer(beerID);
+            LanguageRegistry.addName(beer, "Beer");
             
             waterproofBarrel = new WaterproofBarrel(waterproofBarrelID, Material.wood);
             GameRegistry.registerBlock(waterproofBarrel, "fermentationWaterproofBarrel");
