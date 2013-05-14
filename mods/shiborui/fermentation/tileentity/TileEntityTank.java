@@ -1,7 +1,10 @@
 package mods.shiborui.fermentation.tileentity;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
@@ -20,13 +23,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.liquids.LiquidTank;
 
-public class TileEntityTank extends TileEntity implements IInventory {
+public class TileEntityTank extends TileEntityGenericTank implements IInventory {
 	 private ItemStack[] inventory;
-	 private int liquidType = 0;
-	 private int liquidVolume = 0;
-	 private int solidType = 0;
-	 private int solidCount = 0;
 	 private int progress = 0;
 	 private int tickCount = 0;
 	 private boolean active = true;
@@ -39,21 +41,6 @@ public class TileEntityTank extends TileEntity implements IInventory {
 	 private static final int OUTPUT = 1;
 	 private static final int SOLID = 2;
 	 
-	 public static final int RUINEDBREW = -1;
-	 public static final int EMPTY = 0;
-	 public static final int WATER = 1;
-	 public static final int SWEETWORT = 2;
-	 public static final int HOPPEDWORT = 3;
-	 public static final int BEER = 4;
-	 
-	 public static final int DRIEDGRAIN = 1;
-	 public static final int HYDRATEDGRAIN = 2;
-	 public static final int MILLEDGRAIN = 3;
-	 public static final int HOPS = 4;
-	 public static final int YEAST = 5;
-	 public static final int EGG = 6;
-	 
-
      public TileEntityTank(){
              inventory = new ItemStack[3];
      }
@@ -73,23 +60,6 @@ public class TileEntityTank extends TileEntity implements IInventory {
              inventory[slot] = stack;
              if (stack != null && stack.stackSize > getInventoryStackLimit()) {
                      stack.stackSize = getInventoryStackLimit();
-             }
-             if(slot == SOLID) {
-            	 Item solidItem = null;
-            	 if(inventory[SOLID] != null) {
-            		 solidItem = inventory[SOLID].getItem();
-            	 }
-            	 if(solidItem == null) {
-            		 solidType = EMPTY;
-             	 } else if (solidItem.equals(Fermentation.driedGrain)) {
-            		 solidType = DRIEDGRAIN;
-            	 } else if (solidItem.equals(Fermentation.hydratedGrain)) { 
-            		 solidType = HYDRATEDGRAIN;
-            	 } else if (solidItem.equals(Fermentation.milledGrain)){
-            		 solidType = MILLEDGRAIN;
-            	 } else {
-            		 solidType = EMPTY;
-            	 }
              }
      }
      
@@ -149,10 +119,8 @@ public class TileEntityTank extends TileEntity implements IInventory {
              }
              
              NBTTagCompound tag = tagCompound.getCompoundTag("Content");
-        	 this.liquidType = tag.getByte("LiquidType");
-        	 this.liquidVolume = tag.getByte("LiquidVolume");
-        	 this.solidType = tag.getByte("SolidType");
-        	 this.solidCount = tag.getByte("SolidCount");
+             int liquidVolume = tag.getInteger("LiquidVolume");
+             ((LiquidTank) this.getTank()).setLiquid(LiquidDictionary.getLiquid(tag.getString("LiquidType"), liquidVolume));
         	 this.progress = tag.getByte("Progress");
         	 updateSlotConfiguration();
      }
@@ -174,11 +142,17 @@ public class TileEntityTank extends TileEntity implements IInventory {
              tagCompound.setTag("Inventory", itemList);
              
              NBTTagCompound contentTag = new NBTTagCompound();
-             contentTag.setByte("LiquidType", (byte) liquidType);
-             contentTag.setByte("LiquidVolume", (byte) liquidVolume);
-             contentTag.setByte("SolidType", (byte) solidType);
-             contentTag.setByte("SolidCount", (byte) solidCount);
+             LiquidStack liquid = this.getTank().getLiquid();
+
+             if (liquid != null) {
+             	contentTag.setInteger("LiquidVolume", liquid.amount);
+                 contentTag.setString("LiquidType", LiquidDictionary.findLiquidName(liquid));
+             } else {
+             	contentTag.setInteger("LiquidVolume", 0);
+                 contentTag.setString("LiquidType", "Empty");
+             }
              contentTag.setByte("Progress", (byte) progress);
+             
              tagCompound.setTag("Content", contentTag);
      }
 
@@ -212,22 +186,6 @@ public class TileEntityTank extends TileEntity implements IInventory {
 		updateSlotConfiguration();
 	}
 	
-	public int getLiquidType() {
-		return liquidType;
-	}
-	
-	public int getLiquidVolume() {
-		return liquidVolume;
-	}
-	
-	public int getSolidType() {
-		return solidType;
-	}
-	
-	public int getSolidCount() {
-		return solidCount;
-	}
-	
 	public int getProgress() {
 		return progress;
 	}
@@ -236,50 +194,21 @@ public class TileEntityTank extends TileEntity implements IInventory {
 		return active;
 	}
 	
-	public boolean setLiquidType(int liquidType) {
-		this.liquidType = liquidType;
-		return true;
-	}
-	
-	public boolean setLiquidVolume(int liquidVolume) {
-		this.liquidVolume = liquidVolume;
-		if (liquidVolume == 0) {
-			liquidType = EMPTY;
-		}
-		return true;
-	}
-	
-	public boolean setSolidType(int solidType) {
-		this.solidType = solidType;
-		return true;
-	}
-	
-	public boolean setSolidCount(int solidCount) {
-		this.solidCount = solidCount;
-		return true;
-	}
-	
 	public boolean setProgress(int progress) {
 		this.progress = progress;
 		tickCount = 0;
 		
-		if(progress == 100 && inventory[SOLID] != null) {
+		if(progress >= 100 && inventory[SOLID] != null) {
 			Side side = FMLCommonHandler.instance().getEffectiveSide();
 			if (side == Side.SERVER) {
-				if(inventory[SOLID].getItem().equals(Fermentation.driedGrain) && liquidType == WATER) {
+				if(inventory[SOLID].getItem().equals(Fermentation.driedGrain) && this.getTank().getLiquidName().equals("Water")) {
 					setInventorySlotContents(SOLID, new ItemStack(Fermentation.hydratedGrain, inventory[SOLID].stackSize));
-				} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && liquidType == WATER) {
+				} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && this.getTank().getLiquidName().equals("Water")) {
 					setInventorySlotContents(SOLID, null);
-					setSolidCount(0);
-					setLiquidType(SWEETWORT);
-				} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && liquidType == HOPPEDWORT) {
+					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidSweetWort.itemID, this.getTank().getLiquid().amount));
+				} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && this.getTank().getLiquidName().equals("Hopped Wort")) {
 					setInventorySlotContents(SOLID, null);
-					setSolidCount(0);
-					setLiquidType(BEER);
-				} else {
-					setInventorySlotContents(SOLID, null);
-					setSolidCount(0);
-					setLiquidType(RUINEDBREW);
+					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidBeer.itemID, this.getTank().getLiquid().amount));
 				}
 				List<EntityPlayer> players = worldObj.playerEntities;
 				for (int i = 0; i < players.size(); i++) {
@@ -300,15 +229,14 @@ public class TileEntityTank extends TileEntity implements IInventory {
 		if (inventorySlots[INPUT] == null || inventorySlots[SOLID] == null) {
 			return;
 		}
-		if (progress < 5) {
+		if (progress < 5 || progress == 100) {
 			inventorySlots[INPUT].setPlayerCanPut(true);
+			inventorySlots[SOLID].setPlayerCanPut(true);
 			inventorySlots[SOLID].setPlayerCanTake(true);
 		} else if (progress >= 5 && progress < 100) {
 			inventorySlots[INPUT].setPlayerCanPut(false);
+			inventorySlots[SOLID].setPlayerCanPut(false);
 			inventorySlots[SOLID].setPlayerCanTake(false);
-		} else if (progress == 100) {
-			inventorySlots[INPUT].setPlayerCanPut(true);
-			inventorySlots[SOLID].setPlayerCanTake(true);
 		}
 	}
 	
@@ -317,105 +245,38 @@ public class TileEntityTank extends TileEntity implements IInventory {
 		return true;
 	}
 	
-	public void updateActive() {
-		if(liquidVolume > 0 && solidCount > 0 && progress < 100) {
-			active = true;
+	public boolean updateActive() {
+		if (this.getTank().getLiquid() != null && inventory[SOLID] != null && progress < 100) {
+			String liquidName = this.getTank().getLiquidName();
+			Item solid = inventory[SOLID].getItem();
+			if (liquidName.equals("Water") && solid.equals(Fermentation.driedGrain)) {
+				active = true;
+			} else if (liquidName.equals("Water") && solid.equals(Fermentation.milledGrain)) {
+				active = true;
+			} else if (liquidName.equals("Hopped Wort") && solid.equals(Fermentation.yeast)) {
+				active = true;
+			} else {
+				active = false;
+			}
 		} else {
 			active = false;
 		}
+		return active;
 	}
 	
 	public void onInventoryChanged() {
 		if(inventory[INPUT] != null) {
-			Item inputItem = inventory[INPUT].getItem();
-			Item outputItem = null;
-			if(inventory[OUTPUT] != null) {
-				outputItem = inventory[OUTPUT].getItem();
-			}
-			if (liquidVolume < 64 && Arrays.asList(validLiquids).contains(inputItem)) {
-				boolean willTakeLiquid = false;
-				if (inputItem.equals(Item.bucketWater) && (getLiquidType() == WATER || getLiquidType() == EMPTY)) {
-					setLiquidType(WATER);
-					willTakeLiquid = true;
-				} else if (inputItem.equals(Fermentation.bucketSweetWort) && (getLiquidType() == SWEETWORT || getLiquidType() == EMPTY)) {
-					setLiquidType(SWEETWORT);
-					willTakeLiquid = true;
-				} else if (inputItem.equals(Fermentation.bucketHoppedWort) && (getLiquidType() == HOPPEDWORT || getLiquidType() == EMPTY)) {
-					setLiquidType(HOPPEDWORT);
-					willTakeLiquid = true;
-				} else if (inventory[INPUT].getItem().equals(Fermentation.bucketBeer) && (getLiquidType() == BEER || getLiquidType() == EMPTY)) {
-					setLiquidType(BEER);
-					willTakeLiquid = true;
-				}
-				if(willTakeLiquid) {
-					if(inventory[OUTPUT] == null) {
-						setInventorySlotContents(OUTPUT, new ItemStack(Item.bucketEmpty));
-						setInventorySlotContents(INPUT, null);
-						setLiquidVolume(getLiquidVolume() + 1);
-					} else if (outputItem.equals(Item.bucketEmpty) && inventory[OUTPUT].stackSize < 16) {
-						inventory[OUTPUT].stackSize++;
-						setInventorySlotContents(INPUT, null);
-						setLiquidVolume(getLiquidVolume() + 1);
-					}
-				}
-			} else if (inputItem.equals(Item.bucketEmpty) && getLiquidVolume() > 0 && inventory[OUTPUT] == null) {
-				switch(liquidType) {
-					case WATER:
-						setInventorySlotContents(OUTPUT, new ItemStack(Item.bucketWater));
-						break;
-					case SWEETWORT:
-						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketSweetWort));
-						break;
-					case HOPPEDWORT:
-						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketHoppedWort));
-						break;
-					case BEER:
-						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketBeer));
-						break;
-					case RUINEDBREW:
-						setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketRuinedBrew));
-						break;
-				}
-				if(inventory[INPUT].stackSize > 1) {
-					inventory[INPUT].stackSize--;
-					setLiquidVolume(getLiquidVolume() - 1);
-				} else {
-					setInventorySlotContents(INPUT, null);
-					setLiquidVolume(getLiquidVolume() - 1);
-				}
-			} else if (inventorySlots[SOLID].getAllowedItems().contains(inputItem) && (inventory[SOLID] == null || inventory[SOLID].getItem().equals(inputItem))) {
-				if (inventory[SOLID] == null) {
-					setInventorySlotContents(SOLID, inventory[INPUT]);
-					setInventorySlotContents(INPUT, null);
-				} else {
-					int space = inventory[SOLID].getMaxStackSize() - inventory[SOLID].stackSize;
-					int present = inventory[INPUT].stackSize;
-					if (space > 0) {
-						int transfer = Math.min(space, present);
-						inventory[SOLID].stackSize += transfer;
-						inventory[INPUT].stackSize -= transfer;
-						solidCount = inventory[SOLID].stackSize;
-						if(present - transfer == 0) {
-							setInventorySlotContents(INPUT, null);
-						}
-					}
-				}
-			}
-			
+			ItemStack[] newStacks = this.transferLiquid(inventory[INPUT], inventory[OUTPUT]);
+			inventory[INPUT] = newStacks[INPUT];
+			inventory[OUTPUT] = newStacks[OUTPUT];
 		}
-		
-		if(inventory[SOLID] != null) {
-			setSolidCount(inventory[SOLID].stackSize);
-		} else {
-			setSolidCount(0);
-		}
-		
+
 		updateSlotConfiguration();
 		
 		boolean canProgress = false;
-		if (liquidVolume > 0 && solidCount > 0) {
+		if (this.getTank().getLiquid() != null && inventory[SOLID] != null) {
 			
-		} else if (liquidType != SWEETWORT && liquidType != BEER) {
+		} else if (this.getTank().getLiquid() == null || !this.getTank().getLiquidName().equals("Sweet Wort") && !this.getTank().getLiquidName().equals("Beer")) {
 			setProgress(0);
 		}
 	}
@@ -424,16 +285,22 @@ public class TileEntityTank extends TileEntity implements IInventory {
         Side side = FMLCommonHandler.instance().getEffectiveSide();
         
         if(side == Side.SERVER) {
+        	
+        	LiquidStack liquid = this.getTank().getLiquid();
+        	
         	ByteArrayOutputStream bos = new ByteArrayOutputStream(8);
             DataOutputStream outputStream = new DataOutputStream(bos);
             try {
             		outputStream.writeInt(this.xCoord);
                     outputStream.writeInt(this.yCoord);
                     outputStream.writeInt(this.zCoord);
-                    outputStream.writeByte(this.getLiquidType());
-                    outputStream.writeByte(this.getLiquidVolume());
-                    outputStream.writeByte(this.getSolidType());
-                    outputStream.writeByte(this.getSolidCount());
+                    if (liquid != null) {
+                    	outputStream.writeUTF(LiquidDictionary.findLiquidName(liquid));
+                        outputStream.writeInt(liquid.amount);
+                    } else {
+                    	outputStream.writeUTF("Empty");
+                        outputStream.writeInt(0);
+                    }
                     outputStream.writeByte(this.getProgress());
             } catch (Exception ex) {
                     ex.printStackTrace();
@@ -445,5 +312,38 @@ public class TileEntityTank extends TileEntity implements IInventory {
             packet.length = bos.size();
             PacketDispatcher.sendPacketToPlayer(packet, (Player) player);
         }
+	}
+	
+	@Override
+	public void handleServerState(Packet250CustomPayload packet,
+			Player playerEntity) {
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		
+		if (side == Side.CLIENT) {
+			
+			DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+			
+			int x, y, z;
+			String liquidName;
+			int liquidVolume;
+			
+			try {
+				x = inputStream.readInt();
+				y = inputStream.readInt();
+				z = inputStream.readInt();
+				liquidName = inputStream.readUTF();
+				liquidVolume = inputStream.readInt();
+				progress = inputStream.readByte();
+				
+				LiquidStack liquid = LiquidDictionary.getLiquid(liquidName, liquidVolume);
+				
+				this.getTank().setLiquid(liquid);
+				this.setProgress(progress);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
 	}
 }

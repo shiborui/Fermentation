@@ -32,17 +32,6 @@ public class ContainerTank extends Container {
             te.registerInventorySlot(outputSlot, 1);
             te.registerInventorySlot(solidSlot, 2);
             
-            HashSet allowedInput = new HashSet();
-            allowedInput.add(Item.bucketWater);
-            allowedInput.add(Fermentation.bucketSweetWort);
-            allowedInput.add(Fermentation.bucketHoppedWort);
-            allowedInput.add(Item.bucketEmpty);
-            allowedInput.add(Fermentation.milledGrain);
-            allowedInput.add(Fermentation.yeast);
-            allowedInput.add(Item.egg);
-            allowedInput.add(Fermentation.driedGrain);
-            inputSlot.setAllowedItems(allowedInput);
-            
             outputSlot.setPlayerCanPut(false);
             
             HashSet allowedSolids = new HashSet();
@@ -51,9 +40,6 @@ public class ContainerTank extends Container {
             allowedSolids.add(Item.egg);
             allowedSolids.add(Fermentation.driedGrain);
             solidSlot.setAllowedItems(allowedSolids);
-            
-            solidSlot.setPlayerCanPut(false);
-            solidSlot.setPlayerCanTake(false);
 
             //commonly used vanilla code that adds the player's inventory
             bindPlayerInventory(inventoryPlayer);

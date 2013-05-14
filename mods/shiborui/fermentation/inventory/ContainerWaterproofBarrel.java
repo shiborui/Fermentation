@@ -26,15 +26,6 @@ public class ContainerWaterproofBarrel extends Container {
         te.registerInventorySlot(inputSlot, 0);
         te.registerInventorySlot(outputSlot, 1);
         
-        HashSet allowedInput = new HashSet();
-        allowedInput.add(Item.bucketWater);
-        allowedInput.add(Fermentation.bucketSweetWort);
-        allowedInput.add(Fermentation.bucketHoppedWort);
-        allowedInput.add(Fermentation.bucketBeer);
-        allowedInput.add(Item.bucketEmpty);
-        allowedInput.add(Fermentation.mug);
-        inputSlot.setAllowedItems(allowedInput);
-        
         outputSlot.setPlayerCanPut(false);
         
         bindPlayerInventory(inventoryPlayer);
@@ -70,7 +61,7 @@ public class ContainerWaterproofBarrel extends Container {
 
                     //merges the item into player inventory since its in the tileEntity
                     if (slot < 3) {
-                            if (!this.mergeItemStack(stackInSlot, 3, 39, true)) {
+                            if (!this.mergeItemStack(stackInSlot, 3, 38, true)) {
                                     return null;
                             }
                     }

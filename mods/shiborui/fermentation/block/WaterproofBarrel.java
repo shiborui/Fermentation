@@ -13,6 +13,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 public class WaterproofBarrel extends BlockContainer {
+	
 	public WaterproofBarrel (int id, Material material) {
         super(id, material);
         setCreativeTab(CreativeTabs.tabBlock);

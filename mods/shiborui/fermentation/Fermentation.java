@@ -25,6 +25,9 @@ import mods.shiborui.fermentation.item.Mug;
 import mods.shiborui.fermentation.item.QuernStone;
 import mods.shiborui.fermentation.item.VineAssembly;
 import mods.shiborui.fermentation.item.Yeast;
+import mods.shiborui.fermentation.liquid.LiquidBeer;
+import mods.shiborui.fermentation.liquid.LiquidHoppedWort;
+import mods.shiborui.fermentation.liquid.LiquidSweetWort;
 import mods.shiborui.fermentation.tileentity.TileEntityKettle;
 import mods.shiborui.fermentation.tileentity.TileEntityTank;
 import mods.shiborui.fermentation.tileentity.TileEntityWaterproofBarrel;
@@ -36,6 +39,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -72,6 +77,9 @@ public class Fermentation {
 	public static Item vineAssembly;
 	public static Item hopsSeeds;
 	public static Item beer;
+	public static Item liquidSweetWort;
+	public static Item liquidHoppedWort;
+	public static Item liquidBeer;
 	public static Block waterproofBarrel;
 	public static Block tank;
 	public static Block kettle;
@@ -98,6 +106,9 @@ public class Fermentation {
 	public static int vineAssemblyID = 5014;
 	public static int hopsSeedsID = 5015;
 	public static int beerID = 5016;
+	public static int liquidSweetWortID = 5017;
+	public static int liquidHoppedWortID = 5018;
+	public static int liquidBeerID = 5019;
 	public static int waterproofBarrelID = 500;
 	public static int tankID = 501;
 	public static int kettleID = 502;
@@ -211,6 +222,15 @@ public class Fermentation {
             
             beer = new Beer(beerID);
             LanguageRegistry.addName(beer, "Beer");
+
+            liquidSweetWort = new LiquidSweetWort(liquidSweetWortID);
+            LanguageRegistry.addName(liquidSweetWort, "Sweet Wort");
+            
+            liquidHoppedWort = new LiquidHoppedWort(liquidHoppedWortID);
+            LanguageRegistry.addName(liquidHoppedWort, "Hopped Wort");
+            
+            liquidBeer = new LiquidBeer(liquidBeerID);
+            LanguageRegistry.addName(liquidBeer, "Beer");
             
             waterproofBarrel = new WaterproofBarrel(waterproofBarrelID, Material.wood);
             GameRegistry.registerBlock(waterproofBarrel, "fermentationWaterproofBarrel");

@@ -9,6 +9,8 @@ import mods.shiborui.fermentation.tileentity.TileEntityKettle;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
 
 public class GuiKettle extends GuiContainer {
 
@@ -27,25 +29,17 @@ public class GuiKettle extends GuiContainer {
     protected void drawGuiContainerForegroundLayer(int param1, int param2) {
             //draw text and stuff here
             //the parameters for drawString are: string, x, y, color
-			String liquidType;
-			switch(tileEntity.getLiquidType()) {
-				case -1:
-					liquidType = "Ruined Brew";
-					break;
-				case 0:
-					liquidType = "Liquid";
-					break;
-				case 1:
-					liquidType = "Sweet Wort";
-					break;
-				case 2:
-					liquidType = "Hopped Wort";
-					break;
-				default:
-					liquidType = "Invalid";
+			LiquidStack liquid = tileEntity.getTank().getLiquid();
+			String liquidName = LiquidDictionary.findLiquidName(liquid);
+			if (liquidName == null) {
+				liquidName = "Empty";
+			}
+			int amount = 0;
+			if (liquid != null) {
+				amount = liquid.amount;
 			}
             fontRenderer.drawString("Kettle (Debug)", 8, 6, 4210752);
-            fontRenderer.drawString(liquidType + ": " + tileEntity.getLiquidVolume(), 8, 16, 4210752);
+            fontRenderer.drawString(liquidName + ": " + amount, 8, 16, 4210752);
             fontRenderer.drawString(tileEntity.getStoredHeat() + "cal", 8, 26, 4210752);
             fontRenderer.drawString(tileEntity.getProgress() + "%", 8, 36, 4210752);
             fontRenderer.drawString((tileEntity.isActive() ? "Active" : "Inactive"), 8, 46, 4210752);

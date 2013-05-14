@@ -10,6 +10,8 @@ import mods.shiborui.fermentation.tileentity.TileEntityTank;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
 
 public class GuiTank extends GuiContainer {
 	
@@ -25,50 +27,23 @@ public class GuiTank extends GuiContainer {
 	
 	@Override
     protected void drawGuiContainerForegroundLayer(int param1, int param2) {
-            //draw text and stuff here
-            //the parameters for drawString are: string, x, y, color
-			String liquidType;
-			switch(tileEntity.getLiquidType()) {
-				case -1:
-					liquidType = "Ruined Brew";
-					break;
-				case 0:
-					liquidType = "Liquid";
-					break;
-				case 1:
-					liquidType = "Water";
-					break;
-				case 2:
-					liquidType = "Sweet Wort";
-					break;
-				case 3:
-					liquidType = "Hopped Wort";
-					break;
-				case 4:
-					liquidType = "Beer";
-					break;
-				default:
-					liquidType = "Invalid";
-			}
-			String solidType;
-			switch(tileEntity.getSolidType()) {
-				case 0: solidType = "Solid";
-						break;
-				case 1: solidType = "Dried Grain";
-						break;
-				case 2: solidType = "Hydrated Grain";
-						break;
-				case 3: solidType = "Milled Grain";
-						break;
-				default: solidType = "Invalid";
-			}
-            fontRenderer.drawString("Tank (Debug)", 8, 6, 4210752);
-            fontRenderer.drawString(liquidType + ": " + tileEntity.getLiquidVolume(), 8, 16, 4210752);
-            fontRenderer.drawString(solidType + ": " + tileEntity.getSolidCount(), 8, 26, 4210752);
-            fontRenderer.drawString(tileEntity.getProgress() + "%", 8, 36, 4210752);
-            fontRenderer.drawString((tileEntity.isActive() ? "Active" : "Inactive"), 8, 46, 4210752);
-            //draws "Inventory" or your regional equivalent
-            fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
+        //draw text and stuff here
+        //the parameters for drawString are: string, x, y, color
+		LiquidStack liquid = tileEntity.getTank().getLiquid();
+		String liquidName = LiquidDictionary.findLiquidName(liquid);
+		if (liquidName == null) {
+			liquidName = "Empty";
+		}
+		int amount = 0;
+		if (liquid != null) {
+			amount = liquid.amount;
+		}
+        fontRenderer.drawString("Tank (Debug)", 8, 6, 4210752);
+        fontRenderer.drawString(liquidName + ": " + amount, 8, 16, 4210752);
+        fontRenderer.drawString(tileEntity.getProgress() + "%", 8, 36, 4210752);
+        fontRenderer.drawString((tileEntity.isActive() ? "Active" : "Inactive"), 8, 46, 4210752);
+        //draws "Inventory" or your regional equivalent
+        fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
     }
 
     @Override

@@ -34,20 +34,11 @@ public class ContainerKettle extends Container{
         te.registerInventorySlot(hopsSlot, 2);
         te.registerInventorySlot(fuelSlot, 3);
         
-        HashSet allowedInput = new HashSet();
-        allowedInput.add(Fermentation.bucketSweetWort);
-        allowedInput.add(Item.bucketEmpty);
-        allowedInput.add(Fermentation.hops);
-        inputSlot.setAllowedItems(allowedInput);
-        
         outputSlot.setPlayerCanPut(false);
         
         HashSet allowedSolids = new HashSet();
         allowedSolids.add(Fermentation.hops);
         hopsSlot.setAllowedItems(allowedSolids);
-        
-        hopsSlot.setPlayerCanPut(false);
-        hopsSlot.setPlayerCanTake(false);
         
       //commonly used vanilla code that adds the player's inventory
         bindPlayerInventory(inventoryPlayer);

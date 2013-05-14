@@ -1,7 +1,10 @@
 package mods.shiborui.fermentation.tileentity;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -19,11 +22,12 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.liquids.LiquidTank;
 
-public class TileEntityKettle extends TileEntity implements IInventory {
+public class TileEntityKettle extends TileEntityGenericTank implements IInventory {
 	private ItemStack[] inventory;
-	private int liquidType;
-	private int liquidVolume;
 	private int kettleBurnTime = 0; //Number of ticks kettle will keep burning
 	private int currentFuelBurnTime = 0; //The number of ticks that a fresh copy of the currently-burning item would keep the kettle burning for
 	private int storedHeat = 0; //Heat added by fuel to liquid
@@ -37,10 +41,6 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 	private static final int OUTPUT = 1;
 	private static final int HOPS = 2;
 	private static final int FUEL = 3;
-	
-	private static final int EMPTY = 0;
-	private static final int SWEETWORT = 1;
-	private static final int HOPPEDWORT = 2;
 	
 	public TileEntityKettle() {
 		inventory = new ItemStack[4];
@@ -108,20 +108,21 @@ public class TileEntityKettle extends TileEntity implements IInventory {
     
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
-            super.readFromNBT(tagCompound);
-            
-            NBTTagList tagList = tagCompound.getTagList("Inventory");
-            for (int i = 0; i < tagList.tagCount(); i++) {
-                    NBTTagCompound tag = (NBTTagCompound) tagList.tagAt(i);
-                    byte slot = tag.getByte("Slot");
-                    if (slot >= 0 && slot < inventory.length) {
-                            inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
-                    }
-            }
-            
-            NBTTagCompound tag = tagCompound.getCompoundTag("Content");
-         this.liquidType = tag.getByte("LiquidType");
-       	 this.liquidVolume = tag.getByte("LiquidVolume");
+        super.readFromNBT(tagCompound);
+        System.out.println("readFromNBT");
+        
+        NBTTagList tagList = tagCompound.getTagList("Inventory");
+        for (int i = 0; i < tagList.tagCount(); i++) {
+                NBTTagCompound tag = (NBTTagCompound) tagList.tagAt(i);
+                byte slot = tag.getByte("Slot");
+                if (slot >= 0 && slot < inventory.length) {
+                        inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
+                }
+        }
+        
+        NBTTagCompound tag = tagCompound.getCompoundTag("Content");
+        int liquidVolume = tag.getInteger("LiquidVolume");
+        ((LiquidTank) this.getTank()).setLiquid(LiquidDictionary.getLiquid(tag.getString("LiquidType"), liquidVolume));
        	 this.kettleBurnTime = tag.getInteger("KettleBurnTime");
        	 this.storedHeat = tag.getInteger("StoredHeat");
        	 this.progress = tag.getByte("Progress");
@@ -131,6 +132,7 @@ public class TileEntityKettle extends TileEntity implements IInventory {
     @Override
     public void writeToNBT(NBTTagCompound tagCompound) {
             super.writeToNBT(tagCompound);
+            System.out.println("writeToNBT");
                             
             NBTTagList itemList = new NBTTagList();
             for (int i = 0; i < inventory.length; i++) {
@@ -145,8 +147,15 @@ public class TileEntityKettle extends TileEntity implements IInventory {
             tagCompound.setTag("Inventory", itemList);
             
             NBTTagCompound contentTag = new NBTTagCompound();
-            contentTag.setByte("LiquidType", (byte) this.liquidType);
-            contentTag.setByte("LiquidVolume", (byte) this.liquidVolume);
+            LiquidStack liquid = this.getTank().getLiquid();
+
+            if (liquid != null) {
+            	contentTag.setInteger("LiquidVolume", liquid.amount);
+                contentTag.setString("LiquidType", LiquidDictionary.findLiquidName(liquid));
+            } else {
+            	contentTag.setInteger("LiquidVolume", 0);
+                contentTag.setString("LiquidType", "Empty");
+            }
             contentTag.setInteger("KettleBurnTime", this.kettleBurnTime);
             contentTag.setInteger("StoredHeat", this.storedHeat);
             contentTag.setByte("Progress", (byte) progress);
@@ -170,7 +179,7 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 		int oldTemp = this.getKettleTemperature();
 		if (this.kettleBurnTime > 0) {
 			this.kettleBurnTime--;
-			if (this.liquidVolume > 0) {
+			if (this.getTank().getLiquid() != null) {
 				this.storedHeat += 100;
 			}
 		} else if (storedHeat > 0) {
@@ -214,22 +223,6 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 		updateSlotConfiguration();
 	}
 	
-	public boolean setLiquidType(int liquidType) {
-		this.liquidType = liquidType;
-		return true;
-	}
-	
-	public boolean setLiquidVolume(int liquidVolume) {
-		if (liquidVolume < this.liquidVolume) {
-			this.storedHeat = (int) (this.storedHeat * ((double) liquidVolume) / this.liquidVolume);
-		}
-		this.liquidVolume = liquidVolume;
-		if (liquidVolume == 0) {
-			liquidType = EMPTY;
-		}
-		return true;
-	}
-	
 	public boolean setKettleBurnTime(int kettleBurnTime) {
 		this.kettleBurnTime = kettleBurnTime;
 		return true;
@@ -247,7 +240,7 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 		if (progress >= 100 & inventory[HOPS] != null) {
 			Side side = FMLCommonHandler.instance().getEffectiveSide();
 			if (side == Side.SERVER) {
-				this.liquidType = HOPPEDWORT;
+				this.getTank().setLiquid(new LiquidStack(Fermentation.liquidHoppedWort.itemID, this.getTank().getLiquid().amount));
 				inventory[HOPS] = null;
 				List<EntityPlayer> players = worldObj.playerEntities;
 				for (int i = 0; i < players.size(); i++) {
@@ -268,15 +261,14 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 		if (inventorySlots[INPUT] == null || inventorySlots[HOPS] == null) {
 			return;
 		}
-		if (progress < 5) {
+		if (progress < 5 || progress == 100) {
 			inventorySlots[INPUT].setPlayerCanPut(true);
+			inventorySlots[HOPS].setPlayerCanPut(true);
 			inventorySlots[HOPS].setPlayerCanTake(true);
 		} else if (progress >= 5 && progress < 100) {
 			inventorySlots[INPUT].setPlayerCanPut(false);
+			inventorySlots[HOPS].setPlayerCanPut(false);
 			inventorySlots[HOPS].setPlayerCanTake(false);
-		} else if (progress == 100) {
-			inventorySlots[INPUT].setPlayerCanPut(true);
-			inventorySlots[HOPS].setPlayerCanTake(true);
 		}
 	}
 	
@@ -286,7 +278,7 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 	}
 	
 	public void updateActive() {
-		if(liquidVolume > 0 && inventory[HOPS] != null && progress < 100 
+		if(this.getTank().getLiquid() != null && inventory[HOPS] != null && progress < 100 
 				&& (this.kettleBurnTime > 0 || inventory[FUEL] != null || this.storedHeat > 0)) {
 			active = true;
 		} else {
@@ -294,21 +286,13 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 		}
 	}
 	
-	public int getLiquidType() {
-		return this.liquidType;
-	}
-	
-	public int getLiquidVolume() {
-		return this.liquidVolume;
-	}
-	
 	public int getProgress() {
 		return this.progress;
 	}
 	
 	public int getKettleTemperature() {
-		if (this.liquidVolume > 0) {
-			return Math.min(20 + this.storedHeat / 1000 / this.liquidVolume, 100);
+		if (this.getTank().getLiquid() != null) {
+			return Math.min(20 + this.storedHeat  / this.getTank().getLiquid().amount, 100);
 		} else {
 			return 20;
 		}
@@ -327,10 +311,12 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 	}
 	
 	public boolean canBoil() {
-		if (this.inventory[HOPS] == null || this.liquidVolume == 0) {
+		if (this.inventory[HOPS] == null || this.getTank().getLiquid() == null) {
 			return false;
-		} else {
+		} else if (this.getTank().getLiquidName().equals("Sweet Wort")){
 			return true;
+		} else {
+			return false;
 		}
 	}
 	
@@ -339,7 +325,7 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 	}
 	
 	public boolean isBoiling() {
-		if (this.getKettleTemperature() == 100 && liquidType == SWEETWORT && inventory[HOPS] != null) {
+		if (this.getKettleTemperature() == 100 && this.getTank().getLiquidName().equals("Sweet Wort") && inventory[HOPS] != null) {
 			return true;
 		} else {
 			return false;
@@ -349,64 +335,30 @@ public class TileEntityKettle extends TileEntity implements IInventory {
 	public void onInventoryChanged() {
 		
 		if (inventory[INPUT] != null) {
-			if (liquidVolume < 64 && inventory[INPUT].getItem().equals(Fermentation.bucketSweetWort)) {
-				if (this.liquidType == SWEETWORT || this.liquidType == EMPTY) {
-					this.setLiquidType(SWEETWORT);
-					if (inventory[OUTPUT] == null) {
-						setInventorySlotContents(OUTPUT, new ItemStack(Item.bucketEmpty));
-						setInventorySlotContents(INPUT, null);
-						setLiquidVolume(liquidVolume + 1);
-					} else if (inventory[OUTPUT].getItem().equals(Item.bucketEmpty) && inventory[OUTPUT].stackSize < 16) {
-						inventory[OUTPUT].stackSize++;
-						setInventorySlotContents(INPUT, null);
-						setLiquidVolume(liquidVolume + 1);
-					}
-				}
-			} else if (inventory[INPUT].getItem().equals(Item.bucketEmpty) && liquidVolume > 0 && inventory[OUTPUT] == null) {
-				switch(liquidType) {
-				case SWEETWORT:
-					setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketSweetWort));
-					break;
-				case HOPPEDWORT:
-					setInventorySlotContents(OUTPUT, new ItemStack(Fermentation.bucketHoppedWort));
-					break;
-				}
-				if(inventory[INPUT].stackSize > 1) {
-					inventory[INPUT].stackSize--;
-				} else {
-					setInventorySlotContents(INPUT, null);
-				}
-				setLiquidVolume(liquidVolume - 1);
-			} else if (inventory[INPUT].getItem().equals(Fermentation.hops)) {
-				if (inventory[HOPS] == null) {
-					setInventorySlotContents(HOPS, inventory[INPUT]);
-					setInventorySlotContents(INPUT, null);
-				} else {
-					int space = inventory[HOPS].getMaxStackSize() - inventory[HOPS].stackSize;
-					int present = inventory[INPUT].stackSize;
-					if (space > 0) {
-						int transfer = Math.min(space, present);
-						inventory[HOPS].stackSize += transfer;
-						inventory[INPUT].stackSize -= transfer;
-						if(present - transfer == 0) {
-							setInventorySlotContents(INPUT, null);
-						}
-					}
-				}
+			int oldVolume = 0;
+			if (this.getTank().getLiquid() != null) {
+				oldVolume = this.getTank().getLiquid().amount;
 			}
+			ItemStack[] newStacks = this.transferLiquid(inventory[INPUT], inventory[OUTPUT]);
+			if (this.getTank().getLiquid() != null && oldVolume > this.getTank().getLiquid().amount) {
+				this.setStoredHeat((int) ((double) this.getStoredHeat() * this.getTank().getLiquid().amount / oldVolume));
+			}
+			inventory[INPUT] = newStacks[INPUT];
+			inventory[OUTPUT] = newStacks[OUTPUT];
 		}
 		
 		updateSlotConfiguration();
 		
-		if (liquidVolume > 0 && inventory[HOPS] != null) {
+		if (this.getTank().getLiquid() != null && inventory[HOPS] != null) {
 			
 		} else {
 			tickCount = 0;
-			if (liquidVolume == 0) {
-				setStoredHeat(0);
-			}
-			if (liquidType != HOPPEDWORT) {
-				setProgress(0);
+			if (this.getTank().getLiquid() != null) {
+				if (!this.getTank().getLiquidName().equals("Hopped Wort")) {
+					setProgress(0);
+				}
+			} else {
+				this.setStoredHeat(0);
 			}
 		}
 	}
@@ -415,14 +367,21 @@ public class TileEntityKettle extends TileEntity implements IInventory {
         Side side = FMLCommonHandler.instance().getEffectiveSide();
         
         if(side == Side.SERVER) {
+        	LiquidStack liquid = this.getTank().getLiquid();
+        	
         	ByteArrayOutputStream bos = new ByteArrayOutputStream(8);
             DataOutputStream outputStream = new DataOutputStream(bos);
             try {
             		outputStream.writeInt(this.xCoord);
                     outputStream.writeInt(this.yCoord);
                     outputStream.writeInt(this.zCoord);
-                    outputStream.writeByte(this.liquidType);
-                    outputStream.writeByte(this.liquidVolume);
+                    if (liquid != null) {
+                    	outputStream.writeUTF(LiquidDictionary.findLiquidName(liquid));
+                        outputStream.writeInt(liquid.amount);
+                    } else {
+                    	outputStream.writeUTF("Empty");
+                        outputStream.writeInt(0);
+                    }
                     outputStream.writeInt(this.kettleBurnTime);
                     outputStream.writeInt(this.storedHeat);
                     outputStream.writeByte(this.progress);
@@ -438,4 +397,40 @@ public class TileEntityKettle extends TileEntity implements IInventory {
         }
 	}
 	
+	@Override
+	public void handleServerState(Packet250CustomPayload packet,
+			Player playerEntity) {
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		
+		if (side == Side.CLIENT) {
+			
+			DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
+			
+			int x, y, z;
+			String liquidName;
+			int liquidVolume;
+			
+			try {
+				x = inputStream.readInt();
+				y = inputStream.readInt();
+				z = inputStream.readInt();
+				liquidName = inputStream.readUTF();
+				liquidVolume = inputStream.readInt();
+				kettleBurnTime = inputStream.readInt();
+				storedHeat = inputStream.readInt();
+				progress = inputStream.readByte();
+				
+				LiquidStack liquid = LiquidDictionary.getLiquid(liquidName, liquidVolume);
+				
+				this.getTank().setLiquid(liquid);
+				this.setKettleBurnTime(kettleBurnTime);
+				this.setStoredHeat(storedHeat);
+				this.setProgress(progress);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+	}
 }

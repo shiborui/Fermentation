@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import mods.shiborui.fermentation.tileentity.ISynchronizedTileEntity;
 import mods.shiborui.fermentation.tileentity.TileEntityKettle;
 import mods.shiborui.fermentation.tileentity.TileEntityTank;
 import mods.shiborui.fermentation.tileentity.TileEntityWaterproofBarrel;
@@ -11,6 +12,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
@@ -22,109 +25,32 @@ public class PacketHandler implements IPacketHandler{
 	public void onPacketData(INetworkManager manager,
         Packet250CustomPayload packet, Player playerEntity) {
 		
-		if (packet.channel.equals("FmtnTank")) {
-			handleTank(packet, playerEntity);
-		} else if (packet.channel.equals("FmtnKettle")) {
-			handleKettle(packet, playerEntity);
-		} else if (packet.channel.equals("FmtnWPBarrel")) {
-			handleWaterproofBarrel(packet, playerEntity);
+		if (packet.channel.equals("FmtnTank") || 
+				packet.channel.equals("FmtnKettle") || 
+				packet.channel.equals("FmtnWPBarrel")) {
+			handleSynchronizedTileEntity(packet, playerEntity);
 		}
 	}
 	
-	private void handleTank(Packet250CustomPayload packet, Player playerEntity) {
+	private void handleSynchronizedTileEntity(Packet250CustomPayload packet, Player playerEntity) {
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		
-		DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
-		
-		int x, y, z;
-		byte liquidType, liquidVolume, solidType, solidCount, progress;
-		
-		try {
-			x = inputStream.readInt();
-			y = inputStream.readInt();
-			z = inputStream.readInt();
-			liquidType = inputStream.readByte();
-			liquidVolume = inputStream.readByte();
-			solidType = inputStream.readByte();
-			solidCount = inputStream.readByte();
-			progress = inputStream.readByte();
+		if (side == Side.CLIENT) {
+			DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
 			
-			if (side == Side.CLIENT) {
-				EntityPlayer entityPlayer = (EntityPlayer) playerEntity;
-				TileEntityTank tankTileEntity = (TileEntityTank) entityPlayer.worldObj.getBlockTileEntity(x, y, z);
-				tankTileEntity.setLiquidType(liquidType);
-				tankTileEntity.setLiquidVolume(liquidVolume);
-				tankTileEntity.setSolidType(solidType);
-				tankTileEntity.setSolidCount(solidCount);
-				tankTileEntity.setProgress(progress);
+			int x, y, z;
+			
+			try {
+				x = inputStream.readInt();
+				y = inputStream.readInt();
+				z = inputStream.readInt();
+				
+				((ISynchronizedTileEntity) ((EntityPlayer) playerEntity).worldObj.getBlockTileEntity(x, y, z)).handleServerState(packet, playerEntity);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
 			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-	}
-	
-	private void handleKettle(Packet250CustomPayload packet, Player playerEntity) {
-		Side side = FMLCommonHandler.instance().getEffectiveSide();
-		
-		DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
-		
-		int x, y, z;
-		byte liquidType, liquidVolume, progress;
-		int kettleBurnTime, storedHeat;
-		
-		try {
-			x = inputStream.readInt();
-			y = inputStream.readInt();
-			z = inputStream.readInt();
-			liquidType = inputStream.readByte();
-			liquidVolume = inputStream.readByte();
-			kettleBurnTime = inputStream.readInt();
-			storedHeat = inputStream.readInt();
-			progress = inputStream.readByte();
-			
-			if (side == Side.CLIENT) {
-				EntityPlayer entityPlayer = (EntityPlayer) playerEntity;
-				TileEntityKettle kettleTileEntity = (TileEntityKettle) entityPlayer.worldObj.getBlockTileEntity(x, y, z);
-				kettleTileEntity.setLiquidType(liquidType);
-				kettleTileEntity.setLiquidVolume(liquidVolume);
-				kettleTileEntity.setKettleBurnTime(kettleBurnTime);
-				kettleTileEntity.setStoredHeat(storedHeat);
-				kettleTileEntity.setProgress(progress);
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-	}
-	
-	private void handleWaterproofBarrel(Packet250CustomPayload packet, Player playerEntity) {
-		Side side = FMLCommonHandler.instance().getEffectiveSide();
-		
-		DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
-		
-		int x, y, z;
-		byte liquidType, liquidVolume;
-		
-		try {
-			x = inputStream.readInt();
-			y = inputStream.readInt();
-			z = inputStream.readInt();
-			liquidType = inputStream.readByte();
-			liquidVolume = inputStream.readByte();
-			
-			if (side == Side.CLIENT) {
-				EntityPlayer entityPlayer = (EntityPlayer) playerEntity;
-				TileEntityWaterproofBarrel waterproofBarrelTileEntity = (TileEntityWaterproofBarrel) entityPlayer.worldObj.getBlockTileEntity(x, y, z);
-				waterproofBarrelTileEntity.setLiquidType(liquidType);
-				waterproofBarrelTileEntity.setLiquidVolume(liquidVolume);
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
 		}
 	}
 }

@@ -4,10 +4,13 @@ import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mods.shiborui.fermentation.Fermentation;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockCloth;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
@@ -18,7 +21,8 @@ public class BucketBeer extends Item {
 	
 	public BucketBeer(int id)
     {
-        super(id);
+        //super(id, Fermentation.testLiquidFlowing.blockID);
+		super(id);
         this.setMaxStackSize(1);
         this.setCreativeTab(CreativeTabs.tabMisc);
         this.setUnlocalizedName("fermentationBucketBeer");
