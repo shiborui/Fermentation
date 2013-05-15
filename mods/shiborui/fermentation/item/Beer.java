@@ -19,8 +19,6 @@ import mods.shiborui.fermentation.Fermentation;
 
 public class Beer extends PotentDrink {
 	
-	public static final String[] subItemNames = {"Young Cloudy Beer", "Aged Cloudy Beer", "Young Beer", "Aged Beer"};
-	
 	public Beer(int id) {
 		super(id);
 		this.setUnlocalizedName("fermentationBeer");
@@ -28,9 +26,6 @@ public class Beer extends PotentDrink {
 		this.setMaxDamage(0);
 		this.setMaxStackSize(1);
 		this.setHasSubtypes(true);
-		potionEffects = new ArrayList<PotionEffect>(1);
-		potionEffects.add(new PotionEffect(Potion.confusion.id, 60*20, 0));
-		potionEffects.add(new PotionEffect(Potion.resistance.id, 60*20, 1));
 	}
 	
 	@Override
@@ -57,4 +52,20 @@ public class Beer extends PotentDrink {
 		}
 	}
 	
+	@Override
+	public List getEffects(ItemStack itemStack) {
+		potionEffects = new ArrayList<PotionEffect>(1);
+		int metadata = itemStack.getItemDamage();
+		int solid = metadata & 3;
+		int hops = (metadata & 12) >> 2;
+		int age = (metadata & 16) >> 4;
+		int purity = (metadata & 32) >> 5;
+		potionEffects.add(new PotionEffect(Potion.resistance.id, (solid+1)*60*20, age));
+		potionEffects.add(new PotionEffect(Potion.heal.id, 1, 1 + hops + age));
+		potionEffects.add(new PotionEffect(Potion.confusion.id, (solid+1)*10*20, 0));
+		if (purity == 0) {
+			potionEffects.add(new PotionEffect(Potion.blindness.id, 60*20, 0));
+		}
+    	return potionEffects;
+    }
 }

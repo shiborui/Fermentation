@@ -52,6 +52,7 @@ public class PotentDrink extends Item{
     
     public ItemStack onEaten(ItemStack itemStack, World world, EntityPlayer player) {
     	if (!world.isRemote) {
+    		System.out.println(player.getHealth());
 			List list = this.getEffects(itemStack);
 
             if (list != null)
@@ -64,6 +65,7 @@ public class PotentDrink extends Item{
                     player.addPotionEffect(new PotionEffect(potioneffect));
                 }
             }
+            System.out.println(player.getHealth());
 		}
     	return new ItemStack(this.getContainerItem());
     }

@@ -40,6 +40,7 @@ public class GuiWaterproofBarrel extends GuiContainer {
 			}
             fontRenderer.drawString("Waterproof Barrel (Debug)", 8, 6, 4210752);
             fontRenderer.drawString(liquidName + ": " + amount, 8, 16, 4210752);
+            fontRenderer.drawString(tileEntity.getProgress() + "%", 8, 36, 4210752);
             //draws "Inventory" or your regional equivalent
             fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
     }

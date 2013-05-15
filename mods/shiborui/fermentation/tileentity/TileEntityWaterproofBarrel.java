@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -31,6 +32,8 @@ import net.minecraftforge.liquids.LiquidTank;
 public class TileEntityWaterproofBarrel extends TileEntityGenericTank implements IInventory {
 	
 	private ItemStack[] inventory;
+	private int progress = 0;
+	private int tickCount = 0;
 	
 	private RestrictedSlot[] inventorySlots = new RestrictedSlot[2];
 	
@@ -97,6 +100,49 @@ public class TileEntityWaterproofBarrel extends TileEntityGenericTank implements
             player.getDistanceSq(xCoord + 0.5, yCoord + 0.5, zCoord + 0.5) < 64;
     }
     
+    public int getProgress() {
+    	return progress;
+    }
+    
+    public void setProgress(int progress) {
+    	this.progress = progress;
+		tickCount = 0;
+		
+		if(progress >= 100 && this.getTank().getLiquid().asItemStack().getItem().equals(Fermentation.liquidBeer)) {
+			this.getTank().setLiquid(new LiquidStack(Fermentation.liquidBeer.itemID, this.getTank().getLiquid().amount, this.getTank().getLiquid().itemMeta | 16));
+			this.progress = 0;
+			
+			if (this.worldObj != null) {
+				List<EntityPlayer> players = this.worldObj.playerEntities;
+				for (int i = 0; i < players.size(); i++) {
+					if (this.isUseableByPlayer(players.get(i))) {
+						this.sendStateToClient(players.get(i));
+					}
+				}
+			}
+		}
+		
+		if (this.worldObj != null) {
+			this.worldObj.updateTileEntityChunkAndDoNothing(this.xCoord, this.yCoord, this.zCoord, this);
+		}
+    }
+    
+    @Override
+	public void updateEntity() {
+		if (this.getTank().getLiquid() != null && 
+				this.getTank().getLiquid().asItemStack().getItem().equals(Fermentation.liquidBeer) &&
+				((this.getTank().getLiquid().itemMeta & 16) >> 4) == 0) {
+			if(++tickCount >= 24) { //100x speed for testing
+				incrementProgress();
+			}
+		}
+	}
+    
+    public boolean incrementProgress() {
+		setProgress(getProgress() + 1);
+		return true;
+	}
+    
     @Override
     public void openChest() {}
 
@@ -120,6 +166,7 @@ public class TileEntityWaterproofBarrel extends TileEntityGenericTank implements
             
             int liquidVolume = tag.getInteger("LiquidVolume");
             ((LiquidTank) this.getTank()).setLiquid(LiquidDictionary.getLiquid(tag.getString("LiquidType"), liquidVolume));
+            setProgress(tag.getInteger("Progress"));
     }
     
     @Override
@@ -149,6 +196,7 @@ public class TileEntityWaterproofBarrel extends TileEntityGenericTank implements
             	contentTag.setInteger("LiquidVolume", 0);
                 contentTag.setString("LiquidType", "Empty");
             }
+            contentTag.setInteger("Progress", this.getProgress());
             
             tagCompound.setTag("Content", contentTag);
     }
@@ -174,9 +222,16 @@ public class TileEntityWaterproofBarrel extends TileEntityGenericTank implements
 	
 	public void onInventoryChanged() {
 		if (inventory[INPUT] != null && !inventory[INPUT].getItem().equals(Item.bucketLava)) {
+			int liquid = 0;
+			if (this.getTank().getLiquid() != null) {
+				liquid = this.getTank().getLiquid().amount;
+			}
 			ItemStack[] newStacks = this.transferLiquid(inventory[INPUT], inventory[OUTPUT]);
 			inventory[INPUT] = newStacks[INPUT];
 			inventory[OUTPUT] = newStacks[OUTPUT];
+			if (this.getTank().getLiquid() == null || this.getTank().getLiquid().amount > liquid) {
+				setProgress(0);
+			}
 		}
 	}
 	
@@ -201,6 +256,7 @@ public class TileEntityWaterproofBarrel extends TileEntityGenericTank implements
                     	outputStream.writeUTF("Empty");
                         outputStream.writeInt(0);
                     }
+                    outputStream.writeInt(this.getProgress());
                     
             } catch (Exception ex) {
                     ex.printStackTrace();
@@ -231,6 +287,7 @@ public class TileEntityWaterproofBarrel extends TileEntityGenericTank implements
 			z = inputStream.readInt();
 			liquidName = inputStream.readUTF();
 			liquidVolume = inputStream.readInt();
+			setProgress(inputStream.readInt());
 			
 			LiquidStack liquid = LiquidDictionary.getLiquid(liquidName, liquidVolume);
 			
