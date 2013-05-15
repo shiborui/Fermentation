@@ -20,7 +20,11 @@ public class TileEntityGenericTank extends TileEntity implements ITankContainer,
 	private LiquidTank tank;
 	
 	public TileEntityGenericTank() {
-		tank = new LiquidTank(null, LiquidContainerRegistry.BUCKET_VOLUME * 8, this);
+		this(LiquidContainerRegistry.BUCKET_VOLUME * 8);
+	}
+	
+	public TileEntityGenericTank(int capacity) { 
+		tank = new LiquidTank(null, capacity, this);
 	}
 	
 	public int fill(LiquidStack resource) {

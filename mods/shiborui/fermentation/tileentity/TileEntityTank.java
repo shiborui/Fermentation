@@ -216,9 +216,12 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 					int logRatio = (int) Math.min(Math.max((Math.log((double) solid / (liquid / LiquidContainerRegistry.BUCKET_VOLUME)) / Math.log(2)), 0), 3);
 					setInventorySlotContents(SOLID, null);
 					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidSweetWort.itemID, this.getTank().getLiquid().amount, logRatio));
-				} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && this.getTank().getLiquidName().equals("Hopped Wort")) {
+				} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && this.getTank().getLiquid().itemID == Fermentation.liquidHoppedWort.itemID) {
 					setInventorySlotContents(SOLID, null);
 					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidBeer.itemID, this.getTank().getLiquid().amount, this.getTank().getLiquid().itemMeta));
+				} else if (inventory[SOLID].getItem().equals(Item.egg) && this.getTank().getLiquid().itemID == Fermentation.liquidBeer.itemID) {
+					setInventorySlotContents(SOLID, null);
+					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidBeer.itemID, this.getTank().getLiquid().amount, this.getTank().getLiquid().itemMeta | 32));
 				}
 				List<EntityPlayer> players = worldObj.playerEntities;
 				for (int i = 0; i < players.size(); i++) {
@@ -263,7 +266,9 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 				active = true;
 			} else if (liquidName.equals("Water") && solid.equals(Fermentation.milledGrain)) {
 				active = true;
-			} else if (liquidName.equals("Hopped Wort") && solid.equals(Fermentation.yeast)) {
+			} else if (this.getTank().getLiquid().itemID == Fermentation.liquidHoppedWort.itemID && solid.equals(Fermentation.yeast)) {
+				active = true;
+			} else if (this.getTank().getLiquid().itemID == Fermentation.liquidBeer.itemID && solid.equals(Item.egg)) {
 				active = true;
 			} else {
 				active = false;
@@ -285,8 +290,10 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 		
 		boolean canProgress = false;
 		if (this.getTank().getLiquid() != null && inventory[SOLID] != null) {
-			
-		} else if (this.getTank().getLiquid() == null || !this.getTank().getLiquidName().equals("Sweet Wort") && !this.getTank().getLiquidName().equals("Beer")) {
+			if (this.getTank().getLiquid().itemID == Fermentation.liquidBeer.itemID && inventory[SOLID].getItem().equals(Item.egg)) {
+				setProgress(0);
+			}
+		} else if (this.getTank().getLiquid() == null || this.getTank().getLiquid().itemID != Fermentation.liquidSweetWort.itemID && !this.getTank().getLiquidName().equals("Beer")) {
 			setProgress(0);
 		}
 	}

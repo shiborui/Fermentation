@@ -319,7 +319,7 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	public boolean canBoil() {
 		if (this.inventory[HOPS] == null || this.getTank().getLiquid() == null) {
 			return false;
-		} else if (this.getTank().getLiquidName().substring(this.getTank().getLiquidName().length() - 10).equals("Sweet Wort")) {
+		} else if (this.getTank().getLiquid().itemID == Fermentation.liquidSweetWort.itemID) {
 			return true;
 		} else {
 			return false;
@@ -331,7 +331,7 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	}
 	
 	public boolean isBoiling() {
-		if (this.getKettleTemperature() == 100 && this.getTank().getLiquidName().substring(this.getTank().getLiquidName().length() - 10).equals("Sweet Wort") && inventory[HOPS] != null) {
+		if (this.getKettleTemperature() == 100 && this.getTank().getLiquid().itemID == Fermentation.liquidSweetWort.itemID && inventory[HOPS] != null) {
 			return true;
 		} else {
 			return false;
