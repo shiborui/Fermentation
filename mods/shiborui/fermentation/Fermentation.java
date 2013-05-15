@@ -38,9 +38,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemSeeds;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.liquids.LiquidContainerData;
+import net.minecraftforge.liquids.LiquidContainerRegistry;
 import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -54,6 +59,7 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 
 @Mod(modid="Fermentation", name="Fermentation", version="0.0.0")
@@ -197,8 +203,28 @@ public class Fermentation {
             
             bucketBeer = new BucketBeer(bucketBeerID);
             bucketBeer.setContainerItem(Item.bucketEmpty);
-            for(int subItem = 0; subItem < 4; subItem++) {
-            	LanguageRegistry.addName(new ItemStack(bucketBeer, 1, subItem), BucketBeer.subItemNames[subItem]);
+            
+            beer = new Beer(beerID);
+            
+            liquidBeer = new LiquidBeer(liquidBeerID);
+            
+            String beerName = "";
+            for(int subItem = 0; subItem < 64; subItem++) {
+            	beerName = LiquidBeer.getNameFromDamage(subItem);
+            	
+            	LanguageRegistry.addName(new ItemStack(bucketBeer, 1, subItem), beerName);
+            	LanguageRegistry.addName(new ItemStack(beer, 1, subItem), beerName);
+                LanguageRegistry.addName(new ItemStack(liquidBeer, 1, subItem), beerName);
+                
+                LiquidDictionary.getOrCreateLiquid(beerName, new LiquidStack(liquidBeer.itemID, 1, subItem));
+                
+                LiquidContainerData containerData = new LiquidContainerData(new LiquidStack(liquidBeer.itemID, LiquidContainerRegistry.BUCKET_VOLUME, subItem), 
+                		new ItemStack(Fermentation.bucketBeer, 1, subItem), new ItemStack(Item.bucketEmpty));
+                LiquidContainerRegistry.registerLiquid(containerData);
+                
+                containerData = new LiquidContainerData(new LiquidStack(liquidBeer.itemID, LiquidContainerRegistry.BUCKET_VOLUME/8, subItem), 
+                		new ItemStack(Fermentation.beer, 1, subItem), new ItemStack(Fermentation.mug));
+                LiquidContainerRegistry.registerLiquid(containerData);
             }
             
             bucketRuinedBrew = new BucketRuinedBrew(bucketRuinedBrewID);
@@ -219,18 +245,39 @@ public class Fermentation {
             hopsSeeds = new HopsSeeds(hopsSeedsID);
             MinecraftForge.addGrassSeed(new ItemStack(hopsSeeds), 1);
             LanguageRegistry.addName(hopsSeeds, "Hops Seeds");
-            
-            beer = new Beer(beerID);
-            LanguageRegistry.addName(beer, "Beer");
 
             liquidSweetWort = new LiquidSweetWort(liquidSweetWortID);
             LanguageRegistry.addName(liquidSweetWort, "Sweet Wort");
             
+            String wortName = "";
+            for(int subItem = 0; subItem < 4; subItem++) {
+            	wortName = LiquidSweetWort.getNameFromDamage(subItem);
+            	
+            	LanguageRegistry.addName(new ItemStack(bucketSweetWort, 1, subItem), wortName);
+            	LanguageRegistry.addName(new ItemStack(liquidSweetWort, 1, subItem), wortName);
+            	
+            	LiquidDictionary.getOrCreateLiquid(wortName, new LiquidStack(liquidSweetWort.itemID, 1, subItem));
+                
+                LiquidContainerData containerData = new LiquidContainerData(new LiquidStack(liquidSweetWort.itemID, LiquidContainerRegistry.BUCKET_VOLUME, subItem), 
+                		new ItemStack(Fermentation.bucketSweetWort, 1, subItem), new ItemStack(Item.bucketEmpty));
+                LiquidContainerRegistry.registerLiquid(containerData);
+            }
+            
             liquidHoppedWort = new LiquidHoppedWort(liquidHoppedWortID);
             LanguageRegistry.addName(liquidHoppedWort, "Hopped Wort");
             
-            liquidBeer = new LiquidBeer(liquidBeerID);
-            LanguageRegistry.addName(liquidBeer, "Beer");
+            for(int subItem = 0; subItem < 16; subItem++) {
+            	wortName = LiquidHoppedWort.getNameFromDamage(subItem);
+            	
+            	LanguageRegistry.addName(new ItemStack(bucketHoppedWort, 1, subItem), wortName);
+            	LanguageRegistry.addName(new ItemStack(liquidHoppedWort, 1, subItem), wortName);
+            	
+            	LiquidDictionary.getOrCreateLiquid(wortName, new LiquidStack(liquidHoppedWort.itemID, 1, subItem));
+                
+                LiquidContainerData containerData = new LiquidContainerData(new LiquidStack(liquidHoppedWort.itemID, LiquidContainerRegistry.BUCKET_VOLUME, subItem), 
+                		new ItemStack(Fermentation.bucketHoppedWort, 1, subItem), new ItemStack(Item.bucketEmpty));
+                LiquidContainerRegistry.registerLiquid(containerData);
+            }
             
             waterproofBarrel = new WaterproofBarrel(waterproofBarrelID, Material.wood);
             GameRegistry.registerBlock(waterproofBarrel, "fermentationWaterproofBarrel");

@@ -23,6 +23,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.liquids.LiquidContainerRegistry;
 import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.liquids.LiquidTank;
@@ -168,10 +169,16 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 	
 	@Override
 	public void updateEntity() {
-		if(active) {
-			//if(++tickCount == 240) {
-			if(++tickCount == 24) { //10x speed for testing
-				incrementProgress();
+		if (active) {
+			if (inventory[SOLID] != null && inventory[SOLID].getItem().equals(Fermentation.yeast)) {
+				//100x speed for testing
+				if (++tickCount >= 2400 / (inventory[SOLID].stackSize / (this.getTank().getLiquid().amount / LiquidContainerRegistry.BUCKET_VOLUME) + 1)) {
+					incrementProgress();
+				}
+			} else {
+				if(++tickCount >= 24) { //10x speed for testing
+					incrementProgress();
+				}
 			}
 		}
 	}
@@ -204,11 +211,14 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 				if(inventory[SOLID].getItem().equals(Fermentation.driedGrain) && this.getTank().getLiquidName().equals("Water")) {
 					setInventorySlotContents(SOLID, new ItemStack(Fermentation.hydratedGrain, inventory[SOLID].stackSize));
 				} else if (inventory[SOLID].getItem().equals(Fermentation.milledGrain) && this.getTank().getLiquidName().equals("Water")) {
+					int liquid = this.getTank().getLiquid().amount;
+					int solid = inventory[SOLID].stackSize;
+					int logRatio = (int) Math.min(Math.max((Math.log((double) solid / (liquid / LiquidContainerRegistry.BUCKET_VOLUME)) / Math.log(2)), 0), 3);
 					setInventorySlotContents(SOLID, null);
-					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidSweetWort.itemID, this.getTank().getLiquid().amount));
+					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidSweetWort.itemID, this.getTank().getLiquid().amount, logRatio));
 				} else if (inventory[SOLID].getItem().equals(Fermentation.yeast) && this.getTank().getLiquidName().equals("Hopped Wort")) {
 					setInventorySlotContents(SOLID, null);
-					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidBeer.itemID, this.getTank().getLiquid().amount));
+					this.getTank().setLiquid(new LiquidStack(Fermentation.liquidBeer.itemID, this.getTank().getLiquid().amount, this.getTank().getLiquid().itemMeta));
 				}
 				List<EntityPlayer> players = worldObj.playerEntities;
 				for (int i = 0; i < players.size(); i++) {

@@ -1,9 +1,11 @@
 package mods.shiborui.fermentation.tileentity;
 
 import cpw.mods.fml.common.network.Player;
+import mods.shiborui.fermentation.Fermentation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
@@ -81,7 +83,7 @@ public class TileEntityGenericTank extends TileEntity implements ITankContainer,
 				inputStack = null;
 			}
 			if (outputStack == null) {
-				outputStack = new ItemStack(outputFilled.getItem(), 1);
+				outputStack = outputFilled;
 			} else {
 				outputStack.stackSize++;
 			}

@@ -12,17 +12,20 @@ import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 
 public class LiquidHoppedWort extends Item implements ILiquid {
+
+	private int metadata = 0;
+	
 	public LiquidHoppedWort(int id) {
+		this(id, 0);
+	}
+	
+	public LiquidHoppedWort(int id, int metadata) {
 		super(id);
 		setUnlocalizedName("fermentationLHoppedWort");
 		setCreativeTab(CreativeTabs.tabMisc);
 		setMaxStackSize(1);
-
-
-        LiquidDictionary.getOrCreateLiquid("Hopped Wort", new LiquidStack(this.itemID, 1, 0));
-        LiquidContainerData containerData = new LiquidContainerData(new LiquidStack(this.itemID, LiquidContainerRegistry.BUCKET_VOLUME, 0), 
-        		new ItemStack(Fermentation.bucketHoppedWort), new ItemStack(Item.bucketEmpty));
-        LiquidContainerRegistry.registerLiquid(containerData);
+		this.metadata = metadata;
+		this.setHasSubtypes(true);
 	}
 
 	@Override
@@ -32,12 +35,12 @@ public class LiquidHoppedWort extends Item implements ILiquid {
 
 	@Override
 	public boolean isMetaSensitive() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public int stillLiquidMeta() {
-		return 0;
+		return metadata;
 	}
 	
 	@Override
@@ -45,4 +48,8 @@ public class LiquidHoppedWort extends Item implements ILiquid {
     {
              this.itemIcon = iconRegister.registerIcon("shiborui/fermentation:TestLiquid");
     }
+	
+	public static String getNameFromDamage(int damage) {
+		return LiquidBeer.getPrefixFromDamage(damage) + LiquidBeer.getInfixFromDamage(damage) + "Hopped Wort";
+	}
 }

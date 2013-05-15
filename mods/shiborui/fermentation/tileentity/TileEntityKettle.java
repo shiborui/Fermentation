@@ -22,6 +22,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraftforge.liquids.LiquidContainerRegistry;
 import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.liquids.LiquidTank;
@@ -109,7 +110,6 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
-        System.out.println("readFromNBT");
         
         NBTTagList tagList = tagCompound.getTagList("Inventory");
         for (int i = 0; i < tagList.tagCount(); i++) {
@@ -132,7 +132,6 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
     @Override
     public void writeToNBT(NBTTagCompound tagCompound) {
             super.writeToNBT(tagCompound);
-            System.out.println("writeToNBT");
                             
             NBTTagList itemList = new NBTTagList();
             for (int i = 0; i < inventory.length; i++) {
@@ -240,7 +239,14 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 		if (progress >= 100 & inventory[HOPS] != null) {
 			Side side = FMLCommonHandler.instance().getEffectiveSide();
 			if (side == Side.SERVER) {
-				this.getTank().setLiquid(new LiquidStack(Fermentation.liquidHoppedWort.itemID, this.getTank().getLiquid().amount));
+				int liquid = this.getTank().getLiquid().amount;
+				int solid = this.getTank().getLiquid().itemMeta;
+				int hops = inventory[HOPS].stackSize;
+				solid = (int) Math.pow(2, solid) * (liquid / LiquidContainerRegistry.BUCKET_VOLUME) + hops;
+				int logSolidRatio = (int) Math.min(Math.max((Math.log((double) solid / (liquid / LiquidContainerRegistry.BUCKET_VOLUME)) / Math.log(2)), 0), 3);
+				int logHopsRatio = 3 - (int) Math.min(Math.max((Math.log((double) solid / hops) / Math.log(2)), 0), 3);
+				int metadata = logSolidRatio + (logHopsRatio << 2);
+				this.getTank().setLiquid(new LiquidStack(Fermentation.liquidHoppedWort.itemID, this.getTank().getLiquid().amount, metadata));
 				inventory[HOPS] = null;
 				List<EntityPlayer> players = worldObj.playerEntities;
 				for (int i = 0; i < players.size(); i++) {
@@ -313,7 +319,7 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	public boolean canBoil() {
 		if (this.inventory[HOPS] == null || this.getTank().getLiquid() == null) {
 			return false;
-		} else if (this.getTank().getLiquidName().equals("Sweet Wort")){
+		} else if (this.getTank().getLiquidName().substring(this.getTank().getLiquidName().length() - 10).equals("Sweet Wort")) {
 			return true;
 		} else {
 			return false;
@@ -325,7 +331,7 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	}
 	
 	public boolean isBoiling() {
-		if (this.getKettleTemperature() == 100 && this.getTank().getLiquidName().equals("Sweet Wort") && inventory[HOPS] != null) {
+		if (this.getKettleTemperature() == 100 && this.getTank().getLiquidName().substring(this.getTank().getLiquidName().length() - 10).equals("Sweet Wort") && inventory[HOPS] != null) {
 			return true;
 		} else {
 			return false;

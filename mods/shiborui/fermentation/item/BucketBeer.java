@@ -44,12 +44,12 @@ public class BucketBeer extends Item {
 	
 	public String getUnlocalizedName(ItemStack par1ItemStack)
     {
-        return super.getUnlocalizedName() + "." + subItemNames[par1ItemStack.getItemDamage()];
+        return super.getUnlocalizedName() + "." + par1ItemStack.getItemDamage();
     }
 	
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(int par1, CreativeTabs tab, List subItems) {
-		for (int subItem = 0; subItem < 4; subItem++) {
+		for (int subItem = 0; subItem < 64; subItem++) {
 			subItems.add(new ItemStack(this, 1, subItem));
 		}
 	}
