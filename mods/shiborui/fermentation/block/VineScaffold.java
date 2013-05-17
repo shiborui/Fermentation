@@ -14,8 +14,9 @@ public class VineScaffold extends Block {
 
 	public VineScaffold(int id) {
 		super(id, Material.plants);
-		setCreativeTab(CreativeTabs.tabBlock);
-        setUnlocalizedName("fermentationVineScaffold");
+		this.setCreativeTab(CreativeTabs.tabBlock);
+        this.setUnlocalizedName("fermentationVineScaffold");
+        this.setHardness(0.5F);
 		this.setTickRandomly(true);
 	}
 	
@@ -33,7 +34,7 @@ public class VineScaffold extends Block {
      */
     public int idDropped(int growthStage, Random random, int par3)
     {
-        return Fermentation.vineScaffoldID;
+        return Block.ladder.blockID;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class VineScaffold extends Block {
      */
     public int quantityDropped(Random random)
     {
-        return 1;
+        return 2;
     }
 	
     @Override

@@ -61,7 +61,7 @@ public class Beer extends PotentDrink {
 		int age = (metadata & 16) >> 4;
 		int purity = (metadata & 32) >> 5;
 		potionEffects.add(new PotionEffect(Potion.resistance.id, (solid+1)*60*20, age));
-		potionEffects.add(new PotionEffect(Potion.heal.id, 1, 1 + hops + age));
+		potionEffects.add(new PotionEffect(Potion.heal.id, 1, 1 + (hops + age)/2));
 		potionEffects.add(new PotionEffect(Potion.confusion.id, (solid+1)*10*20, 0));
 		if (purity == 0) {
 			potionEffects.add(new PotionEffect(Potion.blindness.id, 60*20, 0));
