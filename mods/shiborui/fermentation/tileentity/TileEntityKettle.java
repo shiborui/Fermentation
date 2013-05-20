@@ -34,7 +34,6 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	private int storedHeat = 0; //Heat added by fuel to liquid
 	private int progress = 0; //0 to 100, increments when boiling
 	private int tickCount = 0; //for finer progress resolution
-	private boolean active = true; //should anything happen on ticks?
 	
 	private RestrictedSlot[] inventorySlots = new RestrictedSlot[4];
 	
@@ -174,42 +173,44 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	@Override
 	public void updateEntity() {
 		
-		//Update heat stored and temperature
-		int oldTemp = this.getKettleTemperature();
-		if (this.kettleBurnTime > 0) {
-			this.kettleBurnTime--;
-			if (this.getTank().getLiquid() != null) {
-				this.storedHeat += 100;
+		if(this.isActive()) {
+			//Update heat stored and temperature
+			int oldTemp = this.getKettleTemperature();
+			if (this.kettleBurnTime > 0) {
+				this.kettleBurnTime--;
+				if (this.getTank().getLiquid() != null) {
+					this.storedHeat += 100;
+				}
+			} else if (storedHeat > 0) {
+				this.storedHeat -= 10;
 			}
-		} else if (storedHeat > 0) {
-			this.storedHeat -= 10;
+			if (this.getKettleTemperature() != oldTemp) {
+				this.worldObj.updateTileEntityChunkAndDoNothing(this.xCoord, this.yCoord, this.zCoord, this);
+			}
+			
+	    	//Burn next fuel item if necessary and possible
+	    	if (this.kettleBurnTime == 0) {
+	    		this.currentFuelBurnTime = getItemBurnTime(this.inventory[FUEL]);
+	    		this.kettleBurnTime = this.currentFuelBurnTime;
+	    		if (this.kettleBurnTime > 0) {
+	    			if (this.inventory[FUEL] != null) {
+	    				this.inventory[FUEL].stackSize--;
+	    				if (this.inventory[FUEL].stackSize == 0) {
+	    					//this might cause synchronization bugs
+	    					//if it does, try making it server-side only
+	    					this.inventory[FUEL] = null;
+	    				}
+	    			}
+	    		}
+	    	}
+	    	//Update progress if boiling
+	    	if (this.isBoiling()) {
+	    		if (++this.tickCount == 24) {
+	    			this.incrementProgress();
+	    			tickCount = 0;
+	    		}
+	    	}
 		}
-		if (this.getKettleTemperature() != oldTemp) {
-			this.worldObj.updateTileEntityChunkAndDoNothing(this.xCoord, this.yCoord, this.zCoord, this);
-		}
-		
-    	//Burn next fuel item if necessary and possible
-    	if (this.kettleBurnTime == 0 && this.canBoil()) {
-    		this.currentFuelBurnTime = getItemBurnTime(this.inventory[FUEL]);
-    		this.kettleBurnTime = this.currentFuelBurnTime;
-    		if (this.kettleBurnTime > 0) {
-    			if (this.inventory[FUEL] != null) {
-    				this.inventory[FUEL].stackSize--;
-    				if (this.inventory[FUEL].stackSize == 0) {
-    					//this might cause synchronization bugs
-    					//if it does, try making it server-side only
-    					this.inventory[FUEL] = null;
-    				}
-    			}
-    		}
-    	}
-    	//Update progress if boiling
-    	if (this.isBoiling()) {
-    		if (++this.tickCount == 24) {
-    			this.incrementProgress();
-    			tickCount = 0;
-    		}
-    	}
 	}
 	
 	@Override
@@ -263,7 +264,6 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	}
 	
 	private void updateSlotConfiguration() {
-		updateActive();
 		if (inventorySlots[INPUT] == null || inventorySlots[HOPS] == null) {
 			return;
 		}
@@ -283,15 +283,6 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 		return true;
 	}
 	
-	public void updateActive() {
-		if(this.getTank().getLiquid() != null && inventory[HOPS] != null && progress < 100 
-				&& (this.kettleBurnTime > 0 || inventory[FUEL] != null || this.storedHeat > 0)) {
-			active = true;
-		} else {
-			active = false;
-		}
-	}
-	
 	public int getProgress() {
 		return this.progress;
 	}
@@ -309,21 +300,15 @@ public class TileEntityKettle extends TileEntityGenericTank implements IInventor
 	}
 	
 	public boolean isActive() {
-		return this.active;
-	}
-	
-	public int getKettleBurnTime() {
-		return this.kettleBurnTime;
-	}
-	
-	public boolean canBoil() {
-		if (this.inventory[HOPS] == null || this.getTank().getLiquid() == null) {
-			return false;
-		} else if (this.getTank().getLiquid().itemID == Fermentation.liquidSweetWort.itemID) {
+		if(this.kettleBurnTime > 0 || inventory[FUEL] != null || this.storedHeat > 0) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+	
+	public int getKettleBurnTime() {
+		return this.kettleBurnTime;
 	}
 	
 	public int getItemBurnTime(ItemStack item) {

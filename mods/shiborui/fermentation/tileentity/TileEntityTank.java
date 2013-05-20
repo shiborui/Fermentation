@@ -15,9 +15,11 @@ import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import mods.shiborui.fermentation.Fermentation;
 import mods.shiborui.fermentation.inventory.RestrictedSlot;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -32,7 +34,6 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 	 private ItemStack[] inventory;
 	 private int progress = 0;
 	 private int tickCount = 0;
-	 private boolean active = true;
 	 
 	 private RestrictedSlot[] inventorySlots = new RestrictedSlot[3];
 	 
@@ -169,7 +170,7 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 	
 	@Override
 	public void updateEntity() {
-		if (active) {
+		if (this.isActive()) {
 			if (inventory[SOLID] != null && inventory[SOLID].getItem().equals(Fermentation.yeast)) {
 				//100x speed for testing
 				if (++tickCount >= 2400 / (inventory[SOLID].stackSize / (this.getTank().getLiquid().amount / LiquidContainerRegistry.BUCKET_VOLUME) + 1)) {
@@ -198,7 +199,24 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 	}
 	
 	public boolean isActive() {
-		return active;
+		if (this.getTank().getLiquid() != null && inventory[SOLID] != null && progress < 100) {
+			Item liquid = this.getTank().getLiquid().asItemStack().getItem();
+			Item solid = inventory[SOLID].getItem();
+			//haven't been able to find what 'liquid' is when the tank holds water
+			if (this.getTank().getLiquidName().equals("Water") && solid.equals(Fermentation.driedGrain)) {
+				return true;
+			} else if (this.getTank().getLiquidName().equals("Water") && solid.equals(Fermentation.milledGrain)) {
+				return true;
+			} else if (liquid.equals(Fermentation.liquidHoppedWort) && solid.equals(Fermentation.yeast)) {
+				return true;
+			} else if (liquid.equals(Fermentation.liquidBeer) && solid.equals(Item.egg)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 	
 	public boolean setProgress(int progress) {
@@ -238,7 +256,6 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 	}
 	
 	private void updateSlotConfiguration() {
-		updateActive();
 		if (inventorySlots[INPUT] == null || inventorySlots[SOLID] == null) {
 			return;
 		}
@@ -256,27 +273,6 @@ public class TileEntityTank extends TileEntityGenericTank implements IInventory 
 	public boolean incrementProgress() {
 		setProgress(getProgress() + 1);
 		return true;
-	}
-	
-	public boolean updateActive() {
-		if (this.getTank().getLiquid() != null && inventory[SOLID] != null && progress < 100) {
-			String liquidName = this.getTank().getLiquidName();
-			Item solid = inventory[SOLID].getItem();
-			if (liquidName.equals("Water") && solid.equals(Fermentation.driedGrain)) {
-				active = true;
-			} else if (liquidName.equals("Water") && solid.equals(Fermentation.milledGrain)) {
-				active = true;
-			} else if (this.getTank().getLiquid().itemID == Fermentation.liquidHoppedWort.itemID && solid.equals(Fermentation.yeast)) {
-				active = true;
-			} else if (this.getTank().getLiquid().itemID == Fermentation.liquidBeer.itemID && solid.equals(Item.egg)) {
-				active = true;
-			} else {
-				active = false;
-			}
-		} else {
-			active = false;
-		}
-		return active;
 	}
 	
 	public void onInventoryChanged() {
