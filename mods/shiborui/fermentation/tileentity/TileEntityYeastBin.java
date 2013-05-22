@@ -69,7 +69,7 @@ public class TileEntityYeastBin extends TileEntity implements IInventory {
     
     @Override
 	public void updateEntity() {
-    	if (++tickCount == 20*60*5 && inventory[WATER] != null && inventory[POTATO] != null && inventory[YEAST] != null) {
+    	if (inventory[WATER] != null && inventory[POTATO] != null && inventory[YEAST] != null && ++tickCount == 20*60*60/((inventory[YEAST].stackSize+15)/16)) {
     		inventory[YEAST].stackSize = Math.min(Math.max(inventory[POTATO].stackSize, inventory[YEAST].stackSize), inventory[YEAST].stackSize + 1);
     		tickCount = 0;
     	}
